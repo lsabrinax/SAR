@@ -1,4 +1,4 @@
-from tensorboardX import SummaryWriter
+import visdom
 import argparse
 import random
 import torch
@@ -15,6 +15,7 @@ import dataset
 from model.attnDecoder import SAR, beam_decode
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--port', type=int, required=True, help='visdom port')
 parser.add_argument('--trainRoot', required=True, help='path to train dataset')
 parser.add_argument('--valRoot', required=True, help='path to val dataset')
 parser.add_argument('--workers', type=int, help='number of data loading workers', default=2)
@@ -51,7 +52,8 @@ parser.add_argument('--random_sample', action='store_true', help='whether to sam
 #print('lllll')
 opt = parser.parse_args()
 print(opt)
-writer = SummaryWriter(log_dir='logs')
+vis = visdom.Visdom(env='SAR', port=opt.port)
+# writer = SummaryWriter(log_dir='logs')
 if not os.path.exists(opt.expr_dir):
     os.makedirs(opt.expr_dir)
 
@@ -141,6 +143,7 @@ def trainBatch(net, criterion, optimizer):
     if opt.cuda:
         target = target.cuda()
     cost = criterion(preds, target)
+    print(preds)
     sar.zero_grad()
     cost.backward()
     optimizer.step()
@@ -184,7 +187,7 @@ def val(net, data_set, criterion, max_iter=100):
         cost = criterion(preds, padd_target)
         loss_avg.add(cost)
         for pred, target in zip(pred_texts, cpu_texts):
-            print('pred: %-20s, gt: %-20s' % (pred, target))
+            # print('pred: %-20s, gt: %-20s' % (pred, target))
             if pred == target:
                 n_correct += 1
     accuracy = n_correct / float(nsample)
@@ -200,7 +203,8 @@ for epoch in range(opt.nepoch):
 
         sar.train()
         cost = trainBatch(sar, criterion, optimizer)
-        writer.add_scalar('train/cost', cost, i)
+        vis.line(X=torch.Tenosr([i]), Y=cost, win='train_loss', update='append' if i > 0 else None, opts={'title': 'train_loss'})
+        # writer.add_scalar('train/cost', cost, i)
         loss_avg.add(cost)
         i += 1
 
@@ -215,6 +219,8 @@ for epoch in range(opt.nepoch):
 
 
         if i % opt.displayInterval == 0:
+            vis.text("[{}/{}][{}/{}] loss: {}<br>".format(epoch, opt.epoch, i, len(train_loader), loss_avg.val()), win='text', \
+                update='append' if i != opt.displayInterval else None, opts={'title': 'display_message'})
             print('[%d/%d][%d/%d] loss: %f' %
                     (epoch, opt.nepoch, i, len(train_loader), loss_avg.val()))
             loss_avg.reset()
@@ -225,10 +231,11 @@ for epoch in range(opt.nepoch):
 
         if i % opt.valInterval == 0:
             accu, loss = val(sar, test_dataset, criterion)
-            writer.add_scalar('val/accu', accu, i)
-            writer.add_scalar('val/loss', loss, i)
-
-writer.close()
+            vis.text("Test loss: {}, accuracy: {}".format(loss, accu), win='val_text', update='append' if i != opt.valInterval else None, opts={'title': 'val_message'})
+            vis.line(X=torch.Tensor([i]), Y=loss, win='val_loss', update='append' if i != opt.valInterval else None, opts={'title': 'val_loss'})#visdom是否可以处理Variable
+            
+            # writer.add_scalar('val/accu', accu, i)
+            # writer.add_scalar('val/loss', loss, i)
 
 
 
