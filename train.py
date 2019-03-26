@@ -220,7 +220,7 @@ for epoch in range(opt.nepoch):
 
 
         if i % opt.displayInterval == 0:
-            vis.text("[{}/{}][{}/{}] loss: {}<br>".format(epoch, opt.epoch, i, len(train_loader), loss_avg.val()), win='text', \
+            vis.text("[{}/{}][{}/{}] loss: {}<br>".format(epoch, opt.nepoch, i, len(train_loader), loss_avg.val()), win='text', \
                 update='append' if i != opt.displayInterval else None, opts={'title': 'display_message'})
             print('[%d/%d][%d/%d] loss: %f' %
                     (epoch, opt.nepoch, i, len(train_loader), loss_avg.val()))
