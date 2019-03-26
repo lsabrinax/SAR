@@ -130,10 +130,13 @@ else:
 def trainBatch(net, criterion, optimizer):
     data = train_iter.next()
     cpu_images, cpu_texts = data
+    print('cpu_texts: ', cpu_texts)
     #print(cpu_images)
     batch_size = cpu_images.size(0)
     utils.loadData(imgae, cpu_images)
     t, padded = converter.encode(cpu_texts)
+    print('padded text :', padded)
+    print('text onehot :', t)
     utils.loadData(text, t)
     # padded = V(padded)
     #print(image.device)
@@ -143,11 +146,11 @@ def trainBatch(net, criterion, optimizer):
     if opt.cuda:
         target = target.cuda()
     cost = criterion(preds, target)
-    print(preds)
+    # print(preds)
     sar.zero_grad()
     cost.backward()
     optimizer.step()
-    print('cost shape is ', cost.shape)
+    # print('cost shape is ', cost.shape)
     return cost
 
 
