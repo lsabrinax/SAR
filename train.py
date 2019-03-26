@@ -147,6 +147,7 @@ def trainBatch(net, criterion, optimizer):
     sar.zero_grad()
     cost.backward()
     optimizer.step()
+    print('cost: ', cost)
     return cost
 
 
