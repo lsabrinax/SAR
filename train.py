@@ -220,8 +220,7 @@ for epoch in range(opt.nepoch):
 
 
         if i % opt.displayInterval == 0:
-            vis.text("[{}/{}][{}/{}] loss: {}<br>".format(epoch, opt.nepoch, i, len(train_loader), loss_avg.val()), win='text', \
-                update='append' if i != opt.displayInterval else None, opts={'title': 'display_message'})
+            vis.text("[{}/{}][{}/{}] loss: {}<br>".format(epoch, opt.nepoch, i, len(train_loader), loss_avg.val()), win='text', opts={'title': 'display_message'})
             print('[%d/%d][%d/%d] loss: %f' %
                     (epoch, opt.nepoch, i, len(train_loader), loss_avg.val()))
             loss_avg.reset()
@@ -232,7 +231,7 @@ for epoch in range(opt.nepoch):
 
         if i % opt.valInterval == 0:
             accu, loss = val(sar, test_dataset, criterion)
-            vis.text("Test loss: {}, accuracy: {}".format(loss, accu), win='val_text', update='append' if i != opt.valInterval else None, opts={'title': 'val_message'})
+            vis.text("Test loss: {}, accuracy: {}".format(loss, accu), win='val_text', opts={'title': 'val_message'})
             vis.line(X=torch.Tensor([i]), Y=loss.data.view(-1), win='val_loss', update='append' if i != opt.valInterval else None, opts={'title': 'val_loss'})#visdom是否可以处理Variable
             
             # writer.add_scalar('val/accu', accu, i)
