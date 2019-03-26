@@ -204,7 +204,7 @@ for epoch in range(opt.nepoch):
 
         sar.train()
         cost = trainBatch(sar, criterion, optimizer)
-        vis.line(X=torch.Tensor([i]), Y=cost, win='train_loss', update='append' if i > 0 else None, opts={'title': 'train_loss'})
+        vis.line(X=torch.Tensor([i]), Y=cost.data, win='train_loss', update='append' if i > 0 else None, opts={'title': 'train_loss'})
         # writer.add_scalar('train/cost', cost, i)
         loss_avg.add(cost)
         i += 1
@@ -233,7 +233,7 @@ for epoch in range(opt.nepoch):
         if i % opt.valInterval == 0:
             accu, loss = val(sar, test_dataset, criterion)
             vis.text("Test loss: {}, accuracy: {}".format(loss, accu), win='val_text', update='append' if i != opt.valInterval else None, opts={'title': 'val_message'})
-            vis.line(X=torch.Tensor([i]), Y=loss, win='val_loss', update='append' if i != opt.valInterval else None, opts={'title': 'val_loss'})#visdom是否可以处理Variable
+            vis.line(X=torch.Tensor([i]), Y=loss.data, win='val_loss', update='append' if i != opt.valInterval else None, opts={'title': 'val_loss'})#visdom是否可以处理Variable
             
             # writer.add_scalar('val/accu', accu, i)
             # writer.add_scalar('val/loss', loss, i)
