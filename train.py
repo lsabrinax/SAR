@@ -49,6 +49,7 @@ parser.add_argument('--manualSeed', type=int, default=1234, help='reproduce expe
 parser.add_argument('--random_sample', action='store_true', help='whether to sample the dataset with random sampler')
 
 
+np.set_printoptions(threshold= np.inf)
 #print('lllll')
 opt = parser.parse_args()
 print(opt)
@@ -136,7 +137,7 @@ def trainBatch(net, criterion, optimizer):
     utils.loadData(imgae, cpu_images)
     t, padded = converter.encode(cpu_texts)
     print('padded text :', padded)
-    print('text onehot :', t)
+    print('text onehot :', t[0])
     utils.loadData(text, t)
     # padded = V(padded)
     #print(image.device)
