@@ -7,7 +7,7 @@ from torchvision.transforms import transforms as t
 class strLabelConverter(object):
     """docstring for strLabelConverter"""
     def __init__(self, lexicon_file):
-        super(strLabelConverter, self).__init__()
+        # super(strLabelConverter, self).__init__()
 
         self.ch2ix = {}
         with open(lexicon_file, 'r') as f:
@@ -69,7 +69,7 @@ class strLabelConverter(object):
         padded_text = padded_text.view(batch_size, maxLength, 1)
         #print(padded_text.shape)
         text_onehot.scatter_(2, padded_text, 1.0)
-        return text_onehot, padded_text.squeeze(-1)
+        return text_onehot, padded_text.squeeze(-1).permute(1, 0)
 
 def loadData(v, data):
     v.data.resize_(data.size()).copy_(data)
@@ -78,7 +78,7 @@ def loadData(v, data):
 class averager(object):
     """docstring for averager"""
     def __init__(self):
-        super(averager, self).__init__()
+        # super(averager, self).__init__()
         self.reset()
 
     def add(self, v):
