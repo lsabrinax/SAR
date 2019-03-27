@@ -143,7 +143,7 @@ def trainBatch(net, criterion, optimizer):
     #print(image.device)
     preds, hidden = sar(image, text)
     #print(image.device)
-    target = V(padded[:, 1:].contiguous().view(-1))
+    target = V(padded[1:, :].contiguous().view(-1))
     if opt.cuda:
         target = target.cuda()
     cost = criterion(preds, target)
@@ -186,7 +186,7 @@ def val(net, data_set, criterion, max_iter=100):
         #print('decoded_patch is', decoder_patch)
         pred_texts = converter.decode(decoder_patch)
         preds, hidden = sar(image, text)
-        padd_target = V(padded[:, 1:].contiguous().view(-1))
+        padd_target = V(padded[1:, :].contiguous().view(-1))
         if opt.cuda:
             padd_target = padd_target.cuda()
         cost = criterion(preds, padd_target)
