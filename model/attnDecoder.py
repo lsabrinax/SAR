@@ -47,7 +47,7 @@ class attenDecoder(nn.Module):
         self.lstm = nn.LSTM(emd_size, hidden_size, num_layers=2)
 
         self.attn = Attn(hidden_size, depth_size, feature_length, batch_size)
-        self.dropout = nn.Dropout(p=p)
+        # self.dropout = nn.Dropout(p=p)
         self.linear = nn.Linear(feature_length + hidden_size, output_size)
 
     def forward(self,x, feature_map,  hidden_state):#hidden_state(hn, cn): 2(layers) * batch_size * hidden_size
@@ -59,7 +59,7 @@ class attenDecoder(nn.Module):
 
         ct = self.attn(feature_map, output)
         out = torch.cat((output, ct), 2)
-        out = self.dropout(out)
+        # out = self.dropout(out)
         out = self.linear(out) # seq_len * b *output_size
 
         return out, hidden
