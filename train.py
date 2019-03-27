@@ -208,7 +208,8 @@ for epoch in range(opt.nepoch):
 
         sar.train()
         cost = trainBatch(sar, criterion, optimizer)
-        vis.line(X=torch.Tensor([i]), Y=cost.data.view(-1), win='train_loss', update='append' if i > 0 else None, opts={'title': 'train_loss'})
+        if i % 10 == 0:
+            vis.line(X=torch.Tensor([i]), Y=cost.data.view(-1), win='train_loss', update='append' if i > 0 else None, opts={'title': 'train_loss'})
         # writer.add_scalar('train/cost', cost, i)
         loss_avg.add(cost)
         i += 1
