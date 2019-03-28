@@ -203,7 +203,7 @@ def beam_decode(decoder, converter, decoder_hiddens, opt, feature_maps=None):
             while n.prevNode != None:
                 n = n.prevNode
                 utterance.append(n.input)
-
+            utterance = utterance[1:-1]
             utterance = utterance[::-1]
             utterances.extend(utterance)
         decoded_batch.append(utterances)
