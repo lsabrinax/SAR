@@ -15,6 +15,7 @@ import dataset
 from model.attnDecoder import SAR, beam_decode
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--gpuid', type=int, required=True, help='which gpu to run')
 parser.add_argument('--port', type=int, required=True, help='visdom port')
 parser.add_argument('--trainRoot', required=True, help='path to train dataset')
 parser.add_argument('--valRoot', required=True, help='path to val dataset')
@@ -108,13 +109,13 @@ text  = torch.FloatTensor(opt.batchSize, 5, nclass)
 
 if opt.cuda:
     #print('convert to gpu')
-    text = text.cuda()
-    sar = sar.cuda()
+    text = text.cuda(opt.gpuid)
+    sar = sar.cuda(opt.gpuid)
     # sar = torch.nn.DataParallel(sar, device_ids=0)
     #print(image.device)
-    image = image.cuda()
+    image = image.cuda(opt.gpuid)
     #print(image.device)
-    criterion = criterion.cuda()
+    criterion = criterion.cuda(opt.gpuid)
 #print(image.device)
 imgae = V(image)
 #print(image.device)
@@ -145,7 +146,7 @@ def trainBatch(net, criterion, optimizer):
     #print(image.device)
     target = V(padded[1:, :].contiguous().view(-1))
     if opt.cuda:
-        target = target.cuda()
+        target = target.cuda(opt.gpuid)
     cost = criterion(preds, target)
     # print(preds)
     sar.zero_grad()
@@ -188,7 +189,7 @@ def val(net, data_set, criterion, max_iter=100):
         preds, hidden = sar(image, text)
         padd_target = V(padded[1:, :].contiguous().view(-1))
         if opt.cuda:
-            padd_target = padd_target.cuda()
+            padd_target = padd_target.cuda(opt.gpuid)   
         cost = criterion(preds, padd_target)
         loss_avg.add(cost)
         for pred, target in zip(pred_texts, cpu_texts):
@@ -199,45 +200,46 @@ def val(net, data_set, criterion, max_iter=100):
     print('Test loss: %f, accuracy: %f' % (loss_avg.val(), accuracy))
     return accuracy, loss_avg.val()
 
-for epoch in range(opt.nepoch):
-    train_iter = iter(train_loader)
-    i = 0
-    while i < len(train_loader):
-        for p in sar.parameters():
-            p.requires_grad = True
+val(sar, test_dataset, criterion)
+# for epoch in range(opt.nepoch):
+#     train_iter = iter(train_loader)
+#     i = 0
+#     while i < len(train_loader):
+#         for p in sar.parameters():
+#             p.requires_grad = True
 
-        sar.train()
-        cost = trainBatch(sar, criterion, optimizer)
-        if i % 10 == 0:
-            vis.line(X=torch.Tensor([i]), Y=cost.data.view(-1), win='train_loss', update='append' if i > 0 else None, opts={'title': 'train_loss'})
-        # writer.add_scalar('train/cost', cost, i)
-        loss_avg.add(cost)
-        i += 1
+#         sar.train()
+#         cost = trainBatch(sar, criterion, optimizer)
+#         if i % 10 == 0:
+#             vis.line(X=torch.Tensor([i]), Y=cost.data.view(-1), win='train_loss', update='append' if i > 0 else None, opts={'title': 'train_loss'})
+#         # writer.add_scalar('train/cost', cost, i)
+#         loss_avg.add(cost)
+#         i += 1
 
-        if i % opt.lr_decay_every == 0:
-            print('now lr is %f' % opt.lr)
-            if opt.lr > opt.min_lr:
+#         if i % opt.lr_decay_every == 0:
+#             print('now lr is %f' % opt.lr)
+#             if opt.lr > opt.min_lr:
 
-                opt.lr = opt.lr * opt.lr_decay
-                for param_group in optimizer.param_groups:
-                    param_group['lr'] = opt.lr
-                print('lr is decay by a factor %f, now is %f' %(opt.lr_decay, opt.lr))
-
-
-        if i % opt.displayInterval == 0:
-            vis.text("[{}/{}][{}/{}] loss: {}<br>".format(epoch, opt.nepoch, i, len(train_loader), loss_avg.val()), win='text', opts={'title': 'display_message'})
-            print('[%d/%d][%d/%d] loss: %f' %
-                    (epoch, opt.nepoch, i, len(train_loader), loss_avg.val()))
-            loss_avg.reset()
-
-        if i % opt.saveInterval == 0:
-            torch.save(sar.state_dict(), '{0}/netSAR_{1}_{2}.pth'.format(opt.expr_dir, epoch, i))
+#                 opt.lr = opt.lr * opt.lr_decay
+#                 for param_group in optimizer.param_groups:
+#                     param_group['lr'] = opt.lr
+#                 print('lr is decay by a factor %f, now is %f' %(opt.lr_decay, opt.lr))
 
 
-        if i % opt.valInterval == 0:
-            accu, loss = val(sar, test_dataset, criterion)
-            vis.text("Test loss: {}, accuracy: {}".format(loss, accu), win='val_text', opts={'title': 'val_message'})
-            vis.line(X=torch.Tensor([i]), Y=loss.data.view(-1), win='val_loss', update='append' if i != opt.valInterval else None, opts={'title': 'val_loss'})#visdom是否可以处理Variable
+#         if i % opt.displayInterval == 0:
+#             vis.text("[{}/{}][{}/{}] loss: {}<br>".format(epoch, opt.nepoch, i, len(train_loader), loss_avg.val()), win='text', opts={'title': 'display_message'})
+#             print('[%d/%d][%d/%d] loss: %f' %
+#                     (epoch, opt.nepoch, i, len(train_loader), loss_avg.val()))
+#             loss_avg.reset()
+
+#         if i % opt.saveInterval == 0:
+#             torch.save(sar.state_dict(), '{0}/netSAR_{1}_{2}.pth'.format(opt.expr_dir, epoch, i))
+
+
+#         if i % opt.valInterval == 0:
+#             accu, loss = val(sar, test_dataset, criterion)
+#             vis.text("Test loss: {}, accuracy: {}".format(loss, accu), win='val_text', opts={'title': 'val_message'})
+#             vis.line(X=torch.Tensor([i]), Y=loss.data.view(-1), win='val_loss', update='append' if i != opt.valInterval else None, opts={'title': 'val_loss'})#visdom是否可以处理Variable
             
             # writer.add_scalar('val/accu', accu, i)
             # writer.add_scalar('val/loss', loss, i)
