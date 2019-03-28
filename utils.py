@@ -36,7 +36,7 @@ class strLabelConverter(object):
             text[i] = ['<START>'] + list(text[i]) + ['<END>']
             text_length.append(len(text[i]))
         
-        text = [[self.ch2ix[ch] for ch in line] for line in text]
+        text = [[self.ch2ix[ch] if ch in self.ch2ix else self.ch2ix['<UNK>'] for ch in line] for line in text]
         #torch.LongTensor(text)
         text_onehot, text = self.oneHot(text_length, text)
         # maxLength = text_length.max()
