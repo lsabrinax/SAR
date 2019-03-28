@@ -14,7 +14,7 @@ import numpy as np
 class lmdbDataset(Dataset):
     """docstring for lmdbDataset"""
     def __init__(self, root=None, transform=None, target_transform=None):
-        super(lmdbDataset, self).__init__()
+        #super(lmdbDataset, self).__init__()
         
         self.env = lmdb.open(
             root,
@@ -43,6 +43,7 @@ class lmdbDataset(Dataset):
         with self.env.begin(write=False) as txn:
             img_key = 'image-%09d' % index
             imgbuf = txn.get(img_key.encode())
+            print(imgbuf)
 
             buf = six.BytesIO()
             buf.write(imgbuf)
@@ -66,7 +67,7 @@ class lmdbDataset(Dataset):
 class resizeNormalize(object):
     """docstring for resizeNormalize"""
     def __init__(self, size, interpolation=Image.BILINEAR):
-        super(resizeNormalize, self).__init__()
+        # super(resizeNormalize, self).__init__()
         self.size = size
         self.interpolation = interpolation
         self.toTenosr = transforms.ToTensor()
@@ -80,7 +81,7 @@ class resizeNormalize(object):
 class alignCollate(object):
     """docstring for alignCollate"""
     def __init__(self, imgH=48, maxW=160, keep_ratio=False, min_ratio=1):
-        super(alignCollate, self).__init__()
+        # super(alignCollate, self).__init__()
         self.imgH = imgH
         # self.minW = minW
         self.maxW = maxW
