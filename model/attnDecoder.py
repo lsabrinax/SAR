@@ -38,6 +38,14 @@ class Attn(nn.Module):
 
         return alpha#seq_len * b * D
 
+# class Attn(nn.Module):
+#     def __init__(self, in_channels, internal_channels):
+#         super(Attn, self).__init__()
+#         self.conv1 = nn.Conv2d(in_channels, internal_channels, kernel_size=3, stride=1, padding=1, bias)
+
+#     def forward(self, feature_map, hidden_state):#feature_map:b * H * W, hidden_state:1*b*hidden_size
+
+
 
 class attenDecoder(nn.Module):
     def __init__(self, output_size, batch_size, p, hidden_size=512, depth_size=512, emd_size=512, feature_length=512):
@@ -162,7 +170,7 @@ def beam_decode(decoder, converter, decoder_hiddens, opt, feature_maps=None):
             #print('decoder_input is', decoder_input)
             if opt.cuda:
                 #print('convert to GPU')
-                decoder_input = decoder_input.cuda()
+                decoder_input = decoder_input.cuda(opt.gpuid)
             #print(decoder_hidden[0].shape)
             decoder_output, decoder_hidden = decoder(
                 decoder_input, feature_map, decoder_hidden)
