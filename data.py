@@ -108,6 +108,44 @@ def split_SVT(svt_dir):
                 f.write(newname+', "'+word+'"\n')
             num += 1
             print(imgname,'done!')
+
+def split_IIIT5K(iii_dir):
+
+    label_file = iii_dir+'trainCharBound'
+    label_data = scio.loadmat(label_file)[0]
+
+    for data in label_data:
+        imgname = data['imgname'][0]
+        label = data['chars'][0]
+        newname = 'word_%d.png' % ((num // 20)+ 1)
+        img_dir = iii_dir+'/split/%d/' % ((num % 20) + 1)
+        if not os.path.exists(img_dir):
+            os.makedirs(img_dir)
+        try:
+            shutil.copy(iii_dir+imgname, img_dir+newname)
+        except:
+            print('copy image failed!')
+            continue
+        gt_dir = iii_dir+'split/gt/'
+        if os.path.exists(gt_dir):
+            os.makedirs(gt_dir)
+        gt_name = 'gt_%d.txt' % ((num % 20) + 1)
+        with open(gt_dir+gt_name, 'a') as f:
+            f.write(newname+', "'+label+'"\n')
+        print(imgname,'done!')
+
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     fire.Fire()
 
