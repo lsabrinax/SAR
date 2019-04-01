@@ -107,7 +107,7 @@ def split_SVT(svt_dir):
             with open(gt_dir+gt_name, 'a') as f:
                 f.write(newname+', "'+word+'"\n')
             num += 1
-            print(imname,'done!')
+            print(imgname,'done!')
 if __name__ == '__main__':
     fire.Fire()
 
