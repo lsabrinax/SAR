@@ -115,7 +115,7 @@ def split_IIIT5K(iii_dir):
     label_data = scio.loadmat(label_file)['trainCharBound'][0]
 
     for data in label_data:
-        imgname = data['imgname'][0]
+        imgname = data['ImgName'][0]
         label = data['chars'][0]
         newname = 'word_%d.png' % ((num // 20)+ 1)
         img_dir = iii_dir+'/split/%d/' % ((num % 20) + 1)
