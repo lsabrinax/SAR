@@ -78,13 +78,13 @@ def split_SVT(svt_dir):
     trees = ET.parse(xml_file)
     num = 0
     for img in trees.iter(tag='image'):
-        imgname = img.find('imageName').txt
+        imgname = img.find('imageName').text
         for rect in img.iter('taggedRectangle'):
             h = int(rect.get('weight'))
             w = int(rect.get('width'))
             x = int(rect.get('x'))
             y = int(rect.get('y'))
-            word = rect.find('tag').txt
+            word = rect.find('tag').text
             newname = 'word_%d.png' % ((num // 20) + 1)
             img_dir = svt_dir + 'split/%d/' % ((num % 20 ) + 1)
             if not os.path.join(img_dir):
