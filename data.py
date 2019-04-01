@@ -113,7 +113,7 @@ def split_IIIT5K(iii_dir):
 
     label_file = iii_dir+'trainCharBound'
     label_data = scio.loadmat(label_file)['trainCharBound'][0]
-
+    num = 0
     for data in label_data:
         imgname = data['ImgName'][0]
         label = data['chars'][0]
@@ -132,6 +132,7 @@ def split_IIIT5K(iii_dir):
         gt_name = 'gt_%d.txt' % ((num % 20) + 1)
         with open(gt_dir+gt_name, 'a') as f:
             f.write(newname+', "'+label+'"\n')
+        num += 1
         print(imgname,'done!')
 
 
