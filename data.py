@@ -80,7 +80,7 @@ def split_SVT(svt_dir):
     for img in trees.iter(tag='image'):
         imgname = img.find('imageName').text
         for rect in img.iter('taggedRectangle'):
-            h = int(rect.get('weight'))
+            h = int(rect.get('height'))
             w = int(rect.get('width'))
             x = int(rect.get('x'))
             y = int(rect.get('y'))
