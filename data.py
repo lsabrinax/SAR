@@ -55,7 +55,7 @@ def manage_IC15(gt_dir):
     with open(gt_file, 'r') as f:
         gts = f.readlines()
         for gt in gts:
-            split_dir = gt_dir + 'split/%d'((num % 20) + 1)
+            split_dir = gt_dir + 'split/%d' % ((num % 20) + 1)
             if not os.path.exists(split_dir):
                 os.makedirs(split_dir)
             imgname = gt.strip().split(',')[0]
