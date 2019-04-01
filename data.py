@@ -104,7 +104,7 @@ def split_SVT(svt_dir):
             except:
                 print('cop img failed')
                 continue
-            with oepn(gt_dir+gt_name, 'a') as f:
+            with open(gt_dir+gt_name, 'a') as f:
                 f.write(newname+', "'+word+'"\n')
             num += 1
             print(imname,'done!')
