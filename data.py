@@ -69,7 +69,7 @@ def manage_IC15(gt_dir):
                 print('copy failed!')
                 continue
             num += 1
-            print(imname, 'done!')
+            print(imgname, 'done!')
 
 
 if __name__ == '__main__':
