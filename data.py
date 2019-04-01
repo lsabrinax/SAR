@@ -47,25 +47,25 @@ import xml.etree.cElementTree as ET
 #         print(imname, cropimg_dir, imgname, t, 'done!')
 
 def manage_IC15(gt_dir):
-
+    #gt_dir = '/home/sabrina/data/text-recognition-benchmark/IC15/ch4_training_word_images_gt/'
     gt_file = os.path.join(gt_dir, 'gt.txt')
-    gt_split_dir = gt_dir + 'split/gt'
-    if not os.path.exists(gt_split_dir):
-        os.makedirs(gt_split_dir)
+    split_dir = gt_dir + 'split/'
+    # if not os.path.exists(gt_split_dir):
+    #     os.makedirs(gt_split_dir)
     num = 0#记录成功读取的图片
     with open(gt_file, 'r') as f:
         gts = f.readlines()
         for gt in gts:
-            split_dir = gt_dir + 'split/%d' % ((num % 20) + 1)
-            if not os.path.exists(split_dir):
-                os.makedirs(split_dir)
+            # split_dir = gt_dir + 'split/%d' % ((num % 20) + 1)
+            # if not os.path.exists(split_dir):
+            #     os.makedirs(split_dir)
             imgname = gt.strip().split(',', 1)[0]
-            label = gt.strip().split(',', 1)[1]
-            newname = 'word_%d.png' % ((num // 20) + 1)
-            gt_name = 'gt_%d.txt' %((num % 20) + 1)
+            label = gt.strip().split(',', 1)[1][1:]
+            newname = 'word_%d.png' % num
+            # gt_name = 'gt_%d.txt' %((num % 20) + 1)
             try:
                 shutil.copy(os.path.join(gt_dir, imgname), os.path.join(split_dir, newname))
-                with open(os.path.join(gt_split_dir, gt_name), 'a') as txt:
+                with open(os.path.join(split_dir, 'gt.txt'), 'a') as txt:
                     txt.write(newname+','+label+'\n')
             except:
                 print('copy failed!')
@@ -74,6 +74,7 @@ def manage_IC15(gt_dir):
             print(imgname, 'done!')
 
 def split_SVT(svt_dir):
+    #svt_dir='/home/sabrina/data/text-recognition-benchmark/svt1/'
     xml_file = svt_dir + 'train.xml'
     trees = ET.parse(xml_file)
     num = 0
@@ -85,14 +86,14 @@ def split_SVT(svt_dir):
             x = int(rect.get('x'))
             y = int(rect.get('y'))
             word = rect.find('tag').text
-            newname = 'word_%d.png' % ((num // 20) + 1)
-            img_dir = svt_dir + 'split/%d/' % ((num % 20 ) + 1)
-            if not os.path.exists(img_dir):
-                os.makedirs(img_dir)
-            gt_dir = svt_dir + 'split/gt/'
-            if not os.path.exists(gt_dir):
-                os.makedirs(gt_dir)
-            gt_name = 'gt_%d.txt' % ((num % 20) + 1)
+            newname = 'word_%d.png' % num
+            img_dir = svt_dir + 'split/'
+            # if not os.path.exists(img_dir):
+            #     os.makedirs(img_dir)
+            # gt_dir = svt_dir + 'split/gt/'
+            # if not os.path.exists(gt_dir):
+            #     os.makedirs(gt_dir)
+            # gt_name = 'gt_%d.txt' % ((num % 20) + 1)
 
             try:
                 inputimg = cv2.imread(svt_dir+imgname)
@@ -104,34 +105,34 @@ def split_SVT(svt_dir):
             except:
                 print('cop img failed')
                 continue
-            with open(gt_dir+gt_name, 'a') as f:
-                f.write(newname+', "'+word+'"\n')
+            with open(img_dir+'gt.txt', 'a') as f:
+                f.write(newname+',"'+word+'"\n')
             num += 1
             print(imgname,'done!')
 
 def split_IIIT5K(iii_dir):
-
+    #iii_dir = '/home/sabrina/data/text-recognition-benchmark/IIIT5K/'
     label_file = iii_dir+'trainCharBound'
     label_data = scio.loadmat(label_file)['trainCharBound'][0]
     num = 0
     for data in label_data:
         imgname = data['ImgName'][0]
         label = data['chars'][0]
-        newname = 'word_%d.png' % ((num // 20)+ 1)
-        img_dir = iii_dir+'/split/%d/' % ((num % 20) + 1)
-        if not os.path.exists(img_dir):
-            os.makedirs(img_dir)
+        newname = 'word_%d.png' % num
+        img_dir = iii_dir+'/split/'
+        # if not os.path.exists(img_dir):
+        #     os.makedirs(img_dir)
         try:
             shutil.copy(iii_dir+imgname, img_dir+newname)
         except:
             print('copy image failed!')
             continue
-        gt_dir = iii_dir+'split/gt/'
-        if not os.path.exists(gt_dir):
-            os.makedirs(gt_dir)
-        gt_name = 'gt_%d.txt' % ((num % 20) + 1)
-        with open(gt_dir+gt_name, 'a') as f:
-            f.write(newname+', "'+label+'"\n')
+        # gt_dir = iii_dir+'split/gt/'
+        # if not os.path.exists(gt_dir):
+        #     os.makedirs(gt_dir)
+        # gt_name = 'gt_%d.txt' % ((num % 20) + 1)
+        with open(img_dir+'gt.txt', 'a') as f:
+            f.write(newname+',"'+label+'"\n')
         num += 1
         print(imgname,'done!')
 
