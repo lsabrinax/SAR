@@ -58,13 +58,14 @@ def manage_IC15(gt_dir):
             split_dir = gt_dir + 'split/%d' % ((num % 20) + 1)
             if not os.path.exists(split_dir):
                 os.makedirs(split_dir)
-            imgname = gt.strip().split(',')[0]
+            imgname = gt.strip().split(',', 1)[0]
+            label = gt.strip().split(',', 1)[1]
             newname = 'word_%d.png' % ((num // 20) + 1)
             gt_name = 'gt_%d.txt' %((num % 20) + 1)
             try:
                 shutil.copy(os.path.join(gt_dir, imgname), os.path.join(split_dir, newname))
                 with open(os.path.join(gt_split_dir, gt_name), 'a') as txt:
-                    txt.write(gt)
+                    txt.write(imgname+','+label+'\n')
             except:
                 print('copy failed!')
                 continue
