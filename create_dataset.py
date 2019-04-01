@@ -80,7 +80,7 @@ def createDataset(outputPath, imagePathList, labelList, lexiconList=None, checkV
             print('Written %d / %d' % (cnt, nSamples))
         cnt += 1
     nSamples = cnt-1
-    cache[imageBuf'num-samples'] = str(nSamples).encode()
+    cache[b'num-samples'] = str(nSamples).encode()
     writeCache(env, cache)
     print('Created dataset with %d samples' % nSamples)
 
