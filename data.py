@@ -96,8 +96,11 @@ def split_SVT(svt_dir):
 
             try:
                 inputimg = cv2.imread(svt_dir+imgname)
+                print('read img success!')
                 cropimg = inputimg[y:y+h,x:x+w]
+                print('cropimg success!')
                 cv2.imwrite(img_dir+newname)
+                print('write img success!')
             except:
                 print('cop img failed')
                 continue
