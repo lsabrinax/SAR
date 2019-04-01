@@ -112,7 +112,7 @@ def split_SVT(svt_dir):
 def split_IIIT5K(iii_dir):
 
     label_file = iii_dir+'trainCharBound'
-    label_data = scio.loadmat(label_file)[0]
+    label_data = scio.loadmat(label_file)['trainCharBound'][0]
 
     for data in label_data:
         imgname = data['imgname'][0]
