@@ -5,6 +5,7 @@ import cv2
 import numpy
 import fire
 import shutil
+import xml.etree.cElementTree as ET
 # gt_dir = '/home/sabrina/data/text-recognition/SynthText/gt.mat'
 # img_dir = '/home/sabrina/data/text-recognition/SynthText/'
 
@@ -72,7 +73,38 @@ def manage_IC15(gt_dir):
             num += 1
             print(imgname, 'done!')
 
+def split_SVT(svt_dir):
+    xml_file = svt_dir + 'train.xml'
+    trees = ET.parse(xml_file)
+    num = 0
+    for img in trees.iter(tag='image'):
+        imgname = img.find('imageName').txt
+        for rect in img.iter('taggedRectangle'):
+            h = int(rect.get('weight'))
+            w = int(rect.get('width'))
+            x = int(rect.get('x'))
+            y = int(rect.get('y'))
+            word = rect.find('tag').txt
+            newname = 'word_%d.png' % ((num // 20) + 1)
+            img_dir = svt_dir + 'split/%d/' % ((num % 20 ) + 1)
+            if not os.path.join(img_dir):
+                os.makedirs(img_dir)
+            gt_dir = svt_dir + 'split/gt/'
+            if not os.path.exists(gt_dir):
+                os.makedirs(gt_dir)
+            gt_name = 'gt_%d.txt' % ((num % 20) + 1)
 
+            try:
+                inputimg = cv2.imread(svt_dir+imgname)
+                cropimg = inputimg[y:y+h,x:x+w]
+                cv2.imwrite(img_dir+newname)
+            except:
+                print('cop img failed')
+                continue
+            with oepn(gt_dir+gt_name, 'a') as f:
+                f.write(newname+', "'+word+'"\n')
+            num += 1
+            print(imname,'done!')
 if __name__ == '__main__':
     fire.Fire()
 
