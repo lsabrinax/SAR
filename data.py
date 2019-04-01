@@ -127,7 +127,7 @@ def split_IIIT5K(iii_dir):
             print('copy image failed!')
             continue
         gt_dir = iii_dir+'split/gt/'
-        if os.path.exists(gt_dir):
+        if not os.path.exists(gt_dir):
             os.makedirs(gt_dir)
         gt_name = 'gt_%d.txt' % ((num % 20) + 1)
         with open(gt_dir+gt_name, 'a') as f:
