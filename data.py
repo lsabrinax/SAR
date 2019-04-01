@@ -65,7 +65,7 @@ def manage_IC15(gt_dir):
             try:
                 shutil.copy(os.path.join(gt_dir, imgname), os.path.join(split_dir, newname))
                 with open(os.path.join(gt_split_dir, gt_name), 'a') as txt:
-                    txt.write(imgname+','+label+'\n')
+                    txt.write(newname+','+label+'\n')
             except:
                 print('copy failed!')
                 continue
