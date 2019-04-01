@@ -87,7 +87,7 @@ def split_SVT(svt_dir):
             word = rect.find('tag').text
             newname = 'word_%d.png' % ((num // 20) + 1)
             img_dir = svt_dir + 'split/%d/' % ((num % 20 ) + 1)
-            if not os.path.join(img_dir):
+            if not os.path.exists(img_dir):
                 os.makedirs(img_dir)
             gt_dir = svt_dir + 'split/gt/'
             if not os.path.exists(gt_dir):
@@ -96,11 +96,11 @@ def split_SVT(svt_dir):
 
             try:
                 inputimg = cv2.imread(svt_dir+imgname)
-                print('read img success!')
+                # print('read img success!')
                 cropimg = inputimg[y:y+h,x:x+w]
-                print('cropimg success!')
+                # print('cropimg success!')
                 cv2.imwrite(img_dir+newname, cropimg)
-                print('write img success!')
+                # print('write img success!')
             except:
                 print('cop img failed')
                 continue
