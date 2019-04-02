@@ -196,7 +196,7 @@ if __name__ == '__main__':
             try:
                 labelList.append(content[1][1:-2])
             except:
-                print(content[1])
+                print(content)
                 os._exit()
 
         labelfile.close()
