@@ -257,7 +257,7 @@ def train():
     mes = ''
     for i in range(1, 21):
         trainroot = os.path.join(opt.trainRoot, 'train_%d'%i)
-        train_dataset = dataset.lmdbDataset(root=trainRoot)
+        train_dataset = dataset.lmdbDataset(root=trainroot)
         data_loader = torch.utils.data.DataLoader(train_dataset,
             batch_size=opt.batchSize,
             shuffle=True,
