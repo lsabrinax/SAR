@@ -292,7 +292,7 @@ def train():
                     loss_avg.reset()
                     vis.text(mes, win='text', opts={'title': 'display_message'})
 
-                 if ij % opt.saveInterval == 0:
+                if ij % opt.saveInterval == 0:
                      torch.save(sar.state_dict(), '{0}/netSAR_{1}_{2}.pth'.format(opt.expr_dir, num, iy))
 
                 if i % opt.lr_decay_every == 0:
