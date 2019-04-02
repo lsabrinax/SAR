@@ -105,23 +105,24 @@ if __name__ == '__main__':
             labelList.append(content[1][1:-2])
         labelfile.close()
 
-        labelfile = open('../Dataset/SynthText_org/annotationlist/annotation_train_'+str(ij)+'.txt')
-        imagePathDir ='../Dataset/SynthText_org/'
-        while 1:
-            line = labelfile.readline()
-            if not line:
-                break
-            content=line.split(',')
-            imagePath=imagePathDir+content[0]+'.jpg'
-            imageList.append(imagePath)
-            ll=len(content[0])
-            labelList.append(content[1][:-2])
-        labelfile.close()
+        # labelfile = open('../Dataset/SynthText_org/annotationlist/annotation_train_'+str(ij)+'.txt')
+        # imagePathDir ='../Dataset/SynthText_org/'
+        # while 1:
+        #     line = labelfile.readline()
+        #     if not line:
+        #         break
+        #     content=line.split(',')
+        #     imagePath=imagePathDir+content[0]+'.jpg'
+        #     imageList.append(imagePath)
+        #     ll=len(content[0])
+        #     labelList.append(content[1][:-2])
+        # labelfile.close()
 
         labelfile = open('/home/sabrina/data/text-recognition/SynthText/cropimg/gt_'+str(ij)+'.txt')
         # labelfile = open('../Dataset/SynthText_org/annotationlist/annotation_train_'+str(ij+99)+'.txt')
         imagePathDir ='/home/sabrina/data/text-recognition/SynthText/cropimg/'
-        while 1:
+        i = 0
+        while i < 120000:
             line = labelfile.readline()
             if not line:
                 break
@@ -131,6 +132,7 @@ if __name__ == '__main__':
             imageList.append(imagePath)
             ll=len(content[0])
             labelList.append(content[1][:-1])
+            i += 1
         labelfile.close()
 
         # labelfile = open('../Dataset/Max_Syn_90kDICT32px/annotationlist/annotation_train_'+str(ij)+'.txt')
