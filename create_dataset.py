@@ -180,7 +180,11 @@ if __name__ == '__main__':
             imagePath=imagePathDir+content[0]
             imageList.append(imagePath)
             ll=len(content[0])
-            labelList.append(content[1][1:-2])
+            try:
+                labelList.append(content[1][1:-2])
+            except:
+                print(content)
+                os._exit()
         labelfile.close()
 
         imagePathDir='/home/sabrina/data/text-recognition-benchmark/IC15/ch4_training_word_images_gt/split/'
@@ -189,15 +193,12 @@ if __name__ == '__main__':
             line = labelfile.readline()
             if not line:
                 break
-            print(line)
+            # print(line)
             content=line.split(',', 1)
             imagePath=imagePathDir+content[0]
             imageList.append(imagePath)
-            try:
-                labelList.append(content[1][1:-2])
-            except:
-                print(content)
-                os._exit()
+            labelList.append(content[1][1:-2])
+            
 
         labelfile.close()
 
