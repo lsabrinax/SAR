@@ -193,7 +193,12 @@ if __name__ == '__main__':
             content=line.split(',', 1)
             imagePath=imagePathDir+content[0]
             imageList.append(imagePath)
-            labelList.append(content[1][1:-2])
+            try:
+                labelList.append(content[1][1:-2])
+            except:
+                print(conten[1])
+                os._exit()
+
         labelfile.close()
 
         imagePathDir='/home/sabrina/data/text-recognition-benchmark/IC13//Challenge2_Training_Task3_Images_GT/'
