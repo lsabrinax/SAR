@@ -183,6 +183,7 @@ if __name__ == '__main__':
             try:
                 labelList.append(content[1][1:-2])
             except:
+                print(line)
                 print(content)
                 os._exit()
         labelfile.close()
