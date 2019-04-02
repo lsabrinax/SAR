@@ -15,6 +15,7 @@ import dataset
 from model.attnDecoder import SAR, beam_decode
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--type', default='train', help='train or val')
 parser.add_argument('--gpuid', type=int, required=True, help='which gpu to run')
 parser.add_argument('--port', type=int, required=True, help='visdom port')
 parser.add_argument('--trainRoot', required=True, help='path to train dataset')
@@ -68,17 +69,17 @@ cudnn.benchmark = True#输入数据维度或类型变化不大可以这样设置
 if torch.cuda.is_available() and not opt.cuda:
     print("WARNING: You have a CUDA device, so you should probably run with --cuda ")
 
-train_dataset = dataset.lmdbDataset(root=opt.trainRoot)
-assert train_dataset
+# train_dataset = dataset.lmdbDataset(root=opt.trainRoot)
+# assert train_dataset
 
-#这里没有处理sampler
+# #这里没有处理sampler
 
-train_loader = torch.utils.data.DataLoader(train_dataset,
-    batch_size=opt.batchSize,
-    shuffle=True,
-    num_workers=int(opt.workers),
-    collate_fn=dataset.alignCollate(imgH=opt.imgH, maxW=opt.maxW, keep_ratio=opt.keep_ratio))
-test_dataset = dataset.lmdbDataset(root=opt.valRoot)
+# train_loader = torch.utils.data.DataLoader(train_dataset,
+#     batch_size=opt.batchSize,
+#     shuffle=True,
+#     num_workers=int(opt.workers),
+#     collate_fn=dataset.alignCollate(imgH=opt.imgH, maxW=opt.maxW, keep_ratio=opt.keep_ratio))
+# test_dataset = dataset.lmdbDataset(root=opt.valRoot)
 
 converter = utils.strLabelConverter(opt.lexicon)
 nclass = converter.nc
@@ -120,6 +121,10 @@ if opt.cuda:
 imgae = V(image)
 #print(image.device)
 text = V(text)
+if opt.cuda:
+    sar.cuda(opt.gpuid)
+    criterion.cuda(opt.gpuid)
+
 
 loss_avg = utils.averager()
 if opt.adam: 
@@ -132,13 +137,13 @@ else:
 def trainBatch(net, criterion, optimizer):
     data = train_iter.next()
     cpu_images, cpu_texts = data
-    print('cpu_texts: ', cpu_texts)
+    # print('cpu_texts: ', cpu_texts)
     #print(cpu_images)
     batch_size = cpu_images.size(0)
     utils.loadData(imgae, cpu_images)
     t, padded = converter.encode(cpu_texts)
-    print('padded text :', padded)
-    print('text onehot :', t[0])
+    # print('padded text :', padded)
+    # print('text onehot :', t[0])
     utils.loadData(text, t)
     # padded = V(padded)
     #print(image.device)
@@ -172,7 +177,8 @@ def val(net, data_set, criterion, max_iter=100):
     n_correct = 0
     loss_avg = utils.averager()
     nsample = 0
-    max_iter = min(max_iter, len(data_loader))
+    #max_iter = min(max_iter, len(data_loader))
+    max_iter = max(max_iter, len(data_loader))#测试所有数据
     for i in range(max_iter):
         data = val_iter.next()
         i += 1
@@ -200,7 +206,7 @@ def val(net, data_set, criterion, max_iter=100):
     print('Test loss: %f, accuracy: %f' % (loss_avg.val(), accuracy))
     return accuracy, loss_avg.val()
 
-val(sar, test_dataset, criterion)
+# val(sar, test_dataset, criterion)
 # for epoch in range(opt.nepoch):
 #     train_iter = iter(train_loader)
 #     i = 0
@@ -244,8 +250,68 @@ val(sar, test_dataset, criterion)
             # writer.add_scalar('val/accu', accu, i)
             # writer.add_scalar('val/loss', loss, i)
 
+def train():
+    sar.train()
+    loss_avg.reset()
+    ij = 0
+    mes = ''
+    for i in range(1, 21):
+        trainroot = os.path.join(opt.trainRoot, 'train_%d'%i)
+        train_dataset = dataset.lmdbDataset(root=trainRoot)
+        data_loader = torch.utils.data.DataLoader(train_dataset,
+            batch_size=opt.batchSize,
+            shuffle=True,
+            num_workers=int(opt.workers),
+            collate_fn=dataset.alignCollate(imgH=opt.imgH, maxW=opt.maxW, keep_ratio=opt.keep_ratio))
+
+        for y in range(1, 3):
+            iy = 0
+            for data, label in data_loader:
+                t, padded = converter.encode(label)
+                img = V(data)
+                txt = V(t)
+                target = V(padded[1:, :].contiguous().view(-1))
+                if opt.cuda:
+                    img = img.cuda(opt.gpuid)
+                    txt = txt.cuda(opt.gpuid)
+                    target = target.cuda(opt.gpuid)
+                preds, hidden = sar(img, txt)
+                cost = criterion(preds, target)
+                sar.zero_grad()
+                cost.backward()
+                optimizer.step()
+                iy += 1
+                ij += 1
+                loss_avg.add(cost)
+                if ij % 20 == 0:
+                    vis.line(X=torch.Tensor([ij]), Y=cost.data.view(-1), win='train_loss', update='append' if ij > 20 else None, opts={'title': 'train_loss'})
+                num = (i - 1) * 2 + y
+                if ij % opt.displayInterval == 0:
+                    
+                    mes += "[{}/{}][{}/{}] loss: {}<br>".format(num, 40, iy, len(data_loader), loss_avg.val())
+                    loss_avg.reset()
+                    vis.text(mes, win='text', opts={'title': 'display_message'})
+
+                 if ij % opt.saveInterval == 0:
+                     torch.save(sar.state_dict(), '{0}/netSAR_{1}_{2}.pth'.format(opt.expr_dir, num, iy))
+
+                if i % opt.lr_decay_every == 0:
+                    print('now lr is %f' % opt.lr)
+                    if opt.lr > opt.min_lr:
+
+                        opt.lr = opt.lr * opt.lr_decay
+                        for param_group in optimizer.param_groups:
+                            param_group['lr'] = opt.lr
+                        print('lr is decay by a factor %f, now is %f' %(opt.lr_decay, opt.lr))
 
 
+if __name__ == '__main__':
 
+    if opt.type == 'train'
+        train()
+    elif opt.type == 'val':
+        valRoot = opt.valRoot
+        test_dataset = dataset.lmdbDataset(root=valRoot)
+        val(sar, test_dataset, criterion)
 
 
