@@ -307,7 +307,7 @@ def train():
 
 if __name__ == '__main__':
 
-    if opt.type == 'train'
+    if opt.type == 'train':
         train()
     elif opt.type == 'val':
         valRoot = opt.valRoot
