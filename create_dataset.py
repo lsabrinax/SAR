@@ -47,7 +47,7 @@ def createDataset(outputPath, imagePathList, labelList, lexiconList=None, checkV
     env = lmdb.open(outputPath, map_size=1099511627776)
     cache = {}
     cnt = 1
-    for i in xrange(nSamples):
+    for i in range(nSamples):
         imagePath = imagePathList[i]
         label = labelList[i]
         
@@ -180,12 +180,13 @@ if __name__ == '__main__':
             imagePath=imagePathDir+content[0]
             imageList.append(imagePath)
             ll=len(content[0])
-            try:
-                labelList.append(content[1][1:-2])
-            except:
-                print(line)
-                print(content)
-                os._exit()
+            labelList.append(content[1][1:-2])
+            # try:
+                
+            # except:
+            #     print(line)
+            #     print(content)
+            #     os._exit()
         labelfile.close()
 
         imagePathDir='/home/sabrina/data/text-recognition-benchmark/IC15/ch4_training_word_images_gt/split/'
