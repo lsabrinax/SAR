@@ -27,7 +27,7 @@ def checkImageIsValid(imageBin):
 
 def writeCache(env, cache):
     with env.begin(write=True) as txn:
-        for k, v in cache.iteritems():
+        for k, v in cache.items():
             txn.put(k, v)
 
 
