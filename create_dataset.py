@@ -189,7 +189,7 @@ if __name__ == '__main__':
             line = labelfile.readline()
             if not line:
                 break
-            # print(line)
+            print(line)
             content=line.split(',', 1)
             imagePath=imagePathDir+content[0]
             imageList.append(imagePath)
