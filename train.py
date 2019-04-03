@@ -121,9 +121,9 @@ if opt.cuda:
 imgae = V(image)
 #print(image.device)
 text = V(text)
-if opt.cuda:
-    sar.cuda(opt.gpuid)
-    criterion.cuda(opt.gpuid)
+# if opt.cuda:
+#     sar.cuda(opt.gpuid)
+#     criterion.cuda(opt.gpuid)
 
 
 loss_avg = utils.averager()
