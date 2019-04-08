@@ -98,25 +98,27 @@ if __name__ == '__main__':
             line = labelfile.readline()
             if not line:
                 break
-            content=line.split(',', 1)
+            content=line.split(',', 1)#这里换行符是去掉了的
             imagePath=imagePathDir+'crop_img_'+str(ij)+'/'+content[0]
             imageList.append(imagePath)
             ll=len(content[0])
             labelList.append(content[1][1:-2])
         labelfile.close()
 
-        # labelfile = open('../Dataset/SynthText_org/annotationlist/annotation_train_'+str(ij)+'.txt')
-        # imagePathDir ='../Dataset/SynthText_org/'
-        # while 1:
-        #     line = labelfile.readline()
-        #     if not line:
-        #         break
-        #     content=line.split(',')
-        #     imagePath=imagePathDir+content[0]+'.jpg'
-        #     imageList.append(imagePath)
-        #     ll=len(content[0])
-        #     labelList.append(content[1][:-2])
-        # labelfile.close()
+        labelfile = open('/home/sabrina/text-recognition/Synth90K/Synth90K/split/gt/gt_%d.txt' % ij)
+        imagePathDir ='/home/sabrina/text-recognition/Synth90K/Synth90K/split/'
+        i = 0
+        while i < 120000:
+            line = labelfile.readline()
+            if not line:
+                break
+            content=line.strip().split(',', 1)
+            imagePath=imagePathDir+str(ij)+'/'+content[0]
+            imageList.append(imagePath)
+            # ll=len(content[0])
+            labelList.append(content[1])
+            i += 1
+        labelfile.close()
 
         labelfile = open('/home/sabrina/data/text-recognition/SynthText/cropimg/gt_'+str(ij)+'.txt')
         # labelfile = open('../Dataset/SynthText_org/annotationlist/annotation_train_'+str(ij+99)+'.txt')
