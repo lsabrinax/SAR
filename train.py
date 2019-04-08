@@ -86,7 +86,7 @@ sar.apply(weights_init)
 
 if opt.pretrained != '':
     print('loading pretrained model from %s' % opt.pretrained)
-    sar.load_state_dict(torch.load(opt.pretrained))
+    sar.load_state_dict(torch.load(opt.pretrained, map_location=lambda storage, loc: storage.cuda(opt.gpuid)))
 print(sar)
 
 if opt.cuda:
