@@ -63,6 +63,8 @@ class lmdbDataset(Dataset):
 
         return (img, label)#img只有一个通道
 
+    def close():
+        self.env.close()
 
 class resizeNormalize(object):
     """docstring for resizeNormalize"""
