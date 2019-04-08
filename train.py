@@ -148,7 +148,23 @@ def val(net, data_set, criterion, max_iter=100):
     print('Test loss: %f, accuracy: %f' % (loss_avg.val(), accuracy))
     # return accuracy, loss_avg.val()
 
-
+def test(net):
+    print('Start Test!')
+    net.eval()
+    for p in net.parameters():
+        p.requires_grad = False
+    test_dataset = dataset.TestData(opt.valRoot)
+    n_correct = 0
+    nsample = 0
+    for img in test_dataset:
+        image = V(img).unsqueeze(0)
+        if opt.cuda:
+            image = image.cuda(opt.gpuid)
+        hidden_state, feature_map = net.encoder(imgae)
+        decoder_patch = beam_decode(net.decoder, converter, hidden_state, opt, feature_map)
+        pred_texts = converter.decode(decoder_patch)
+        print('pred: %-20s' % pred_texts[0])
+    
 def train():
     vis = visdom.Visdom(env='SAR', port=opt.port)
     sar.train()
