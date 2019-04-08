@@ -138,23 +138,23 @@ def split_IIIT5K(iii_dir):
 
 
 
-def split_Synth90K(90k_dir):
+def split_Synth90K(syn_dir):
     #90k_dir = 'home/sabrina/data/text-recognition/Synth90K/Synth90K/'
-    gt_file = 90k_dir + 'annotation_train.txt'
+    gt_file = syn_dir + 'annotation_train.txt'
     num = 0
     with open(gt_file, 'r') as txt:
         for line in txt.readlines():
             imgname = line.strip().split()[0]
             newname = 'word_%d.jpg' % ((num // 20) + 1)
-            img_dir = 90k_dir + 'splitimg/%d/' % ((num % 20) + 1)
-            gt_dir = 90k_dir + 'splitimg/gt/'
+            img_dir = syn_dir + 'splitimg/%d/' % ((num % 20) + 1)
+            gt_dir = syn_dir + 'splitimg/gt/'
             gt_name = 'gt_%d.txt' % ((num % 20) + 1)
             if not os.path.exists(img_dir):
                 os.makedirs(img_dir)
             if not os.path.exists(gt_dir):
                 os.makedirs(gt_dir)
             try:
-                shutil.copy(90k_dir+imgname[2:], img_dir+newname)
+                shutil.copy(syn_dir+imgname[2:], img_dir+newname)
             except:
                 print('copy image failed!')
                 continue
