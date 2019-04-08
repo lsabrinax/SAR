@@ -81,7 +81,7 @@ class TestData(Dataset):
             pilimg = Image.open(imgpath).convert('L')
         except:
             print('img has Corrupted!')
-            continue
+            return self[index+1]
         return pilimg
     def __len__(self):
         return len(self.imgs)
