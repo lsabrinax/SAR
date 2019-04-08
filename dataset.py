@@ -10,6 +10,7 @@ import six
 import sys
 from PIL import Image
 import numpy as np
+import os
 
 class lmdbDataset(Dataset):
     """docstring for lmdbDataset"""
@@ -65,6 +66,26 @@ class lmdbDataset(Dataset):
 
     def close():
         self.env.close()
+
+class TestData(Dataset):
+    """docstring for TestData"""
+    def __init__(self, valroot):
+        
+        self.valroot = valroot
+        imgs = os.listdir(valroot)
+        self.imgs = [os.path.join(valroot, img) for img in imgs]
+
+    def __getitem__(self, index):
+        imgpath = self.imgs[index]
+        try:
+            pilimg = Image.open(imgpath).convert('L')
+        except:
+            print('img has Corrupted!')
+            continue
+        return pilimg
+    def __len__(self):
+        return len(self.imgs)
+
 
 class resizeNormalize(object):
     """docstring for resizeNormalize"""
