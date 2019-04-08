@@ -163,7 +163,7 @@ def test(net):
         image = V(img).unsqueeze(0)
         if opt.cuda:
             image = image.cuda(opt.gpuid)
-        hidden_state, feature_map = net.encoder(imgae)
+        hidden_state, feature_map = net.encoder(image)
         decoder_patch = beam_decode(net.decoder, converter, hidden_state, opt, feature_map)
         pred_texts = converter.decode(decoder_patch)
         print('pred: %-20s' % pred_texts[0])
