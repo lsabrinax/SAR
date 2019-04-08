@@ -164,7 +164,7 @@ def test(net):
         decoder_patch = beam_decode(net.decoder, converter, hidden_state, opt, feature_map)
         pred_texts = converter.decode(decoder_patch)
         print('pred: %-20s' % pred_texts[0])
-    
+
 def train():
     vis = visdom.Visdom(env='SAR', port=opt.port)
     sar.train()
@@ -231,7 +231,8 @@ if __name__ == '__main__':
         valRoot = opt.valRoot
         test_dataset = dataset.lmdbDataset(root=valRoot)
         val(sar, test_dataset, criterion)
-
+    elif opt.type == 'test':
+        test(sar)
 
 # image = torch.FloatTensor(opt.batchSize, 3, opt.imgH, opt.maxW)
 # text  = torch.FloatTensor(opt.batchSize, 5, nclass)
