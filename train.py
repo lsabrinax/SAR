@@ -157,6 +157,9 @@ def test(net):
     n_correct = 0
     nsample = 0
     for img in test_dataset:
+        w, h = img.size
+        transform = dataset.resizeNormalize((opt.imgH, int(w / float(h) * opt.imgH)))
+        img = transform(img)
         image = V(img).unsqueeze(0)
         if opt.cuda:
             image = image.cuda(opt.gpuid)
