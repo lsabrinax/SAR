@@ -178,7 +178,8 @@ def val(net, data_set, criterion, max_iter=100):
     loss_avg = utils.averager()
     nsample = 0
     #max_iter = min(max_iter, len(data_loader))
-    max_iter = max(max_iter, len(data_loader))#测试所有数据
+    # max_iter = max(max_iter, len(data_loader))#测试所有数据
+    max_iter = len(data_loader)
     for i in range(max_iter):
         data = val_iter.next()
         i += 1
