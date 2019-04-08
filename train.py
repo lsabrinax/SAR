@@ -15,7 +15,7 @@ import dataset
 from model.attnDecoder import SAR, beam_decode
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--type', default='train', help='train or val')
+parser.add_argument('--type', required=True, help='train or val')
 parser.add_argument('--gpuid', type=int, required=True, help='which gpu to run')
 parser.add_argument('--port', type=int, required=True, help='visdom port')
 parser.add_argument('--trainRoot', required=True, help='path to train dataset')
@@ -27,11 +27,11 @@ parser.add_argument('--maxW', type=int, default=160, help='the width of the inpu
 parser.add_argument('--nh', type=int, default=512, help='size of the lstm hidden state')
 parser.add_argument('--nepoch', type=int, default=20, help='number of epoches to train for')
 
-parser.add_argument('--cuda', action='store_true', help='enables cuda')
+parser.add_argument('--cuda', default=True, help='enables cuda')
 parser.add_argument('--ngpu', type=int, default=1, help='number of GPUs to use')
 parser.add_argument('--pretrained', default='', help='path to pretrained model')
-parser.add_argument('--lexicon', required=True, help='path to en.lexicon')#具体到文件
-parser.add_argument('--expr_dir', default='expr', help='where to store samples and models')
+parser.add_argument('--lexicon', default='/home/sabrina/SAR/data/en.lexicon', help='path to en.lexicon')#具体到文件
+parser.add_argument('--expr_dir', required=True, help='where to store samples and models')
 parser.add_argument('--displayInterval', type=int, default=1000, help='Interval to be displayed')
 parser.add_argument('--n_test_disp', type=int, default=20, help='Number of samples to display when test')
 parser.add_argument('--valInterval', type=int, default=1000, help='Interval to be displayed')
@@ -46,17 +46,15 @@ parser.add_argument('--min_lr', type=float, default=1e-5, help='the min lr shoul
 parser.add_argument('--dropout', type=float, default=0.5, help='probability for dropout')
 parser.add_argument('--adam', action='store_true', help='whether to use adam')
 parser.add_argument('--adadelta', action='store_false', help='whether to use adadelta')
-parser.add_argument('--keep_ratio', action='store_true', help='whether to keep ratio')
+parser.add_argument('--keep_ratio', default=True, help='whether to keep ratio')
 parser.add_argument('--manualSeed', type=int, default=1234, help='reproduce experiment')
 parser.add_argument('--random_sample', action='store_true', help='whether to sample the dataset with random sampler')
 
 
-np.set_printoptions(threshold= np.inf)
-#print('lllll')
 opt = parser.parse_args()
 print(opt)
-vis = visdom.Visdom(env='SAR', port=opt.port)
-# writer = SummaryWriter(log_dir='logs')
+
+
 if not os.path.exists(opt.expr_dir):
     os.makedirs(opt.expr_dir)
 
@@ -69,17 +67,6 @@ cudnn.benchmark = True#输入数据维度或类型变化不大可以这样设置
 if torch.cuda.is_available() and not opt.cuda:
     print("WARNING: You have a CUDA device, so you should probably run with --cuda ")
 
-# train_dataset = dataset.lmdbDataset(root=opt.trainRoot)
-# assert train_dataset
-
-# #这里没有处理sampler
-
-# train_loader = torch.utils.data.DataLoader(train_dataset,
-#     batch_size=opt.batchSize,
-#     shuffle=True,
-#     num_workers=int(opt.workers),
-#     collate_fn=dataset.alignCollate(imgH=opt.imgH, maxW=opt.maxW, keep_ratio=opt.keep_ratio))
-# test_dataset = dataset.lmdbDataset(root=opt.valRoot)
 
 converter = utils.strLabelConverter(opt.lexicon)
 nclass = converter.nc
@@ -93,9 +80,6 @@ def weights_init(m):
     elif classname.find('BatchNorm') != -1:
         m.weight.data.normal_(1.0, 0.02)
 
-# encoder = model.RestNet(nchannel, opt.nh)
-# decoder = model.attnDecoder(hidden_size=opt.nh, output_size=nclass, batch_size=opt.batchSize, p=opt.dropout)
-
 
 sar = SAR(nchannel=nchannel, nhidden=opt.nh, output_size=nclass, p=opt.dropout)
 sar.apply(weights_init)
@@ -105,26 +89,9 @@ if opt.pretrained != '':
     sar.load_state_dict(torch.load(opt.pretrained))
 print(sar)
 
-image = torch.FloatTensor(opt.batchSize, 3, opt.imgH, opt.maxW)
-text  = torch.FloatTensor(opt.batchSize, 5, nclass)
-
 if opt.cuda:
-    #print('convert to gpu')
-    text = text.cuda(opt.gpuid)
-    sar = sar.cuda(opt.gpuid)
-    # sar = torch.nn.DataParallel(sar, device_ids=0)
-    #print(image.device)
-    image = image.cuda(opt.gpuid)
-    #print(image.device)
-    criterion = criterion.cuda(opt.gpuid)
-#print(image.device)
-imgae = V(image)
-#print(image.device)
-text = V(text)
-# if opt.cuda:
-#     sar.cuda(opt.gpuid)
-#     criterion.cuda(opt.gpuid)
-
+    sar.cuda(opt.gpuid)
+    criterion.cuda(opt.gpuid)
 
 loss_avg = utils.averager()
 if opt.adam: 
@@ -133,33 +100,6 @@ elif opt.adadelta:
     optimizer = optim.Adadelta(sar.parameters())
 else:
     optimizer = optim.RMSprop(sar.parameters(), lr=opt.lr)
-
-def trainBatch(net, criterion, optimizer):
-    data = train_iter.next()
-    cpu_images, cpu_texts = data
-    # print('cpu_texts: ', cpu_texts)
-    #print(cpu_images)
-    batch_size = cpu_images.size(0)
-    utils.loadData(imgae, cpu_images)
-    t, padded = converter.encode(cpu_texts)
-    # print('padded text :', padded)
-    # print('text onehot :', t[0])
-    utils.loadData(text, t)
-    # padded = V(padded)
-    #print(image.device)
-    preds, hidden = sar(image, text)
-    #print(image.device)
-    target = V(padded[1:, :].contiguous().view(-1))
-    if opt.cuda:
-        target = target.cuda(opt.gpuid)
-    cost = criterion(preds, target)
-    # print(preds)
-    sar.zero_grad()
-    cost.backward()
-    optimizer.step()
-    # print('cost shape is ', cost.shape)
-    return cost
-
 
 def val(net, data_set, criterion, max_iter=100):
     print('Start Val')
@@ -177,26 +117,27 @@ def val(net, data_set, criterion, max_iter=100):
     n_correct = 0
     loss_avg = utils.averager()
     nsample = 0
-    #max_iter = min(max_iter, len(data_loader))
-    # max_iter = max(max_iter, len(data_loader))#测试所有数据
     max_iter = len(data_loader)
+
     for i in range(max_iter):
         data = val_iter.next()
         i += 1
         cpu_images, cpu_texts = data
         batch_size = cpu_images.size(0)
         nsample += batch_size
-        utils.loadData(image, cpu_images)
         t, padded = converter.encode(cpu_texts)#padded:inttensor
-        utils.loadData(text, t)
-        hidden_state, feature_map = net.encoder(image)
-        decoder_patch = beam_decode(net.decoder, converter, hidden_state, opt, feature_map)
-        #print('decoded_patch is', decoder_patch)
-        pred_texts = converter.decode(decoder_patch)
-        preds, hidden = sar(image, text)
+        imgae = V(cpu_images)
+        text = V(t)
         padd_target = V(padded[1:, :].contiguous().view(-1))
         if opt.cuda:
-            padd_target = padd_target.cuda(opt.gpuid)   
+            text = text.cuda(opt.gpuid)
+            image = imgae.cuda(opt.gpuid)
+            padd_target = padd_target.cuda(opt.gpuid)
+        
+        hidden_state, feature_map = net.encoder(image)
+        decoder_patch = beam_decode(net.decoder, converter, hidden_state, opt, feature_map)
+        pred_texts = converter.decode(decoder_patch)
+        preds, hidden = sar(image, text) 
         cost = criterion(preds, padd_target)
         loss_avg.add(cost)
         for pred, target in zip(pred_texts, cpu_texts):
@@ -205,53 +146,11 @@ def val(net, data_set, criterion, max_iter=100):
                 n_correct += 1
     accuracy = n_correct / float(nsample)
     print('Test loss: %f, accuracy: %f' % (loss_avg.val(), accuracy))
-    return accuracy, loss_avg.val()
+    # return accuracy, loss_avg.val()
 
-# val(sar, test_dataset, criterion)
-# for epoch in range(opt.nepoch):
-#     train_iter = iter(train_loader)
-#     i = 0
-#     while i < len(train_loader):
-#         for p in sar.parameters():
-#             p.requires_grad = True
-
-#         sar.train()
-#         cost = trainBatch(sar, criterion, optimizer)
-#         if i % 10 == 0:
-#             vis.line(X=torch.Tensor([i]), Y=cost.data.view(-1), win='train_loss', update='append' if i > 0 else None, opts={'title': 'train_loss'})
-#         # writer.add_scalar('train/cost', cost, i)
-#         loss_avg.add(cost)
-#         i += 1
-
-#         if i % opt.lr_decay_every == 0:
-#             print('now lr is %f' % opt.lr)
-#             if opt.lr > opt.min_lr:
-
-#                 opt.lr = opt.lr * opt.lr_decay
-#                 for param_group in optimizer.param_groups:
-#                     param_group['lr'] = opt.lr
-#                 print('lr is decay by a factor %f, now is %f' %(opt.lr_decay, opt.lr))
-
-
-#         if i % opt.displayInterval == 0:
-#             vis.text("[{}/{}][{}/{}] loss: {}<br>".format(epoch, opt.nepoch, i, len(train_loader), loss_avg.val()), win='text', opts={'title': 'display_message'})
-#             print('[%d/%d][%d/%d] loss: %f' %
-#                     (epoch, opt.nepoch, i, len(train_loader), loss_avg.val()))
-#             loss_avg.reset()
-
-#         if i % opt.saveInterval == 0:
-#             torch.save(sar.state_dict(), '{0}/netSAR_{1}_{2}.pth'.format(opt.expr_dir, epoch, i))
-
-
-#         if i % opt.valInterval == 0:
-#             accu, loss = val(sar, test_dataset, criterion)
-#             vis.text("Test loss: {}, accuracy: {}".format(loss, accu), win='val_text', opts={'title': 'val_message'})
-#             vis.line(X=torch.Tensor([i]), Y=loss.data.view(-1), win='val_loss', update='append' if i != opt.valInterval else None, opts={'title': 'val_loss'})#visdom是否可以处理Variable
-            
-            # writer.add_scalar('val/accu', accu, i)
-            # writer.add_scalar('val/loss', loss, i)
 
 def train():
+    vis = visdom.Visdom(env='SAR', port=opt.port)
     sar.train()
     loss_avg.reset()
     ij = 0
@@ -259,6 +158,7 @@ def train():
     for i in range(1, 21):
         trainroot = os.path.join(opt.trainRoot, 'train_%d'%i)
         train_dataset = dataset.lmdbDataset(root=trainroot)
+        assert train_dataset
         data_loader = torch.utils.data.DataLoader(train_dataset,
             batch_size=opt.batchSize,
             shuffle=True,
@@ -316,3 +216,81 @@ if __name__ == '__main__':
         val(sar, test_dataset, criterion)
 
 
+# image = torch.FloatTensor(opt.batchSize, 3, opt.imgH, opt.maxW)
+# text  = torch.FloatTensor(opt.batchSize, 5, nclass)
+
+# if opt.cuda:
+#     #print('convert to gpu')
+#     text = text.cuda(opt.gpuid)
+#     sar = sar.cuda(opt.gpuid)
+#     # sar = torch.nn.DataParallel(sar, device_ids=0)
+#     #print(image.device)
+#     image = image.cuda(opt.gpuid)
+#     #print(image.device)
+#     criterion = criterion.cuda(opt.gpuid)
+# #print(image.device)
+# imgae = V(image)
+# #print(image.device)
+# text = V(text)
+
+
+# val(sar, test_dataset, criterion)
+# for epoch in range(opt.nepoch):
+#     train_iter = iter(train_loader)
+#     i = 0
+#     while i < len(train_loader):
+#         for p in sar.parameters():
+#             p.requires_grad = True
+
+#         sar.train()
+#         cost = trainBatch(sar, criterion, optimizer)
+#         if i % 10 == 0:
+#             vis.line(X=torch.Tensor([i]), Y=cost.data.view(-1), win='train_loss', update='append' if i > 0 else None, opts={'title': 'train_loss'})
+#         # writer.add_scalar('train/cost', cost, i)
+#         loss_avg.add(cost)
+#         i += 1
+
+#         if i % opt.lr_decay_every == 0:
+#             print('now lr is %f' % opt.lr)
+#             if opt.lr > opt.min_lr:
+
+#                 opt.lr = opt.lr * opt.lr_decay
+#                 for param_group in optimizer.param_groups:
+#                     param_group['lr'] = opt.lr
+#                 print('lr is decay by a factor %f, now is %f' %(opt.lr_decay, opt.lr))
+
+
+#         if i % opt.displayInterval == 0:
+#             vis.text("[{}/{}][{}/{}] loss: {}<br>".format(epoch, opt.nepoch, i, len(train_loader), loss_avg.val()), win='text', opts={'title': 'display_message'})
+#             print('[%d/%d][%d/%d] loss: %f' %
+#                     (epoch, opt.nepoch, i, len(train_loader), loss_avg.val()))
+#             loss_avg.reset()
+
+#         if i % opt.saveInterval == 0:
+#             torch.save(sar.state_dict(), '{0}/netSAR_{1}_{2}.pth'.format(opt.expr_dir, epoch, i))
+
+
+#         if i % opt.valInterval == 0:
+#             accu, loss = val(sar, test_dataset, criterion)
+#             vis.text("Test loss: {}, accuracy: {}".format(loss, accu), win='val_text', opts={'title': 'val_message'})
+#             vis.line(X=torch.Tensor([i]), Y=loss.data.view(-1), win='val_loss', update='append' if i != opt.valInterval else None, opts={'title': 'val_loss'})#visdom是否可以处理Variable
+            
+            # writer.add_scalar('val/accu', accu, i)
+            # writer.add_scalar('val/loss', loss, i)
+
+# def trainBatch(net, criterion, optimizer):
+#     data = train_iter.next()
+#     cpu_images, cpu_texts = data
+#     batch_size = cpu_images.size(0)
+#     utils.loadData(imgae, cpu_images)
+#     t, padded = converter.encode(cpu_texts)
+#     utils.loadData(text, t)
+#     preds, hidden = sar(image, text)
+#     target = V(padded[1:, :].contiguous().view(-1))
+#     if opt.cuda:
+#         target = target.cuda(opt.gpuid)
+#     cost = criterion(preds, target)
+#     sar.zero_grad()
+#     cost.backward()
+#     optimizer.step()
+#     return cost
