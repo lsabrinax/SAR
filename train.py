@@ -287,7 +287,7 @@ if __name__ == '__main__':
         val(sar, test_dataset, criterion)
     elif opt.type == 'test':
         test(sar)
-    elif opt.type = 'normal':
+    elif opt.type == 'normal':
         train_normal(sar)
 
 
