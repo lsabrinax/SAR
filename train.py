@@ -226,34 +226,56 @@ def train():
                         print('lr is decay by a factor %f, now is %f' %(opt.lr_decay, opt.lr))
         train_dataset.close()
 
-# def train_normal(net):
-#     vis = visdom.Visdom(env=opt.env, port=opt.port)
-#     sar.train()
-#     loss_avg.reset()
-#     dataset = dataset.lmdbDataset(root=opt.trainRoot)
-#     data_loader = torch.utils.data.DataLoader(train_dataset, batch_size=opt.batchSize,
-#             shuffle=True,
-#             num_workers=int(opt.workers),
-#             collate_fn=dataset.alignCollate(imgH=opt.imgH, maxW=opt.maxW, keep_ratio=opt.keep_ratio))
-#     for epoch in range(opt.epoch):
+def train_normal(net):
+    vis = visdom.Visdom(env=opt.env, port=opt.port)
+    sar.train()
+    loss_avg.reset()
+    mes = ''
+    dataset = dataset.lmdbDataset(root=opt.trainRoot)
+    data_loader = torch.utils.data.DataLoader(train_dataset, batch_size=opt.batchSize,
+            shuffle=True,
+            num_workers=int(opt.workers),
+            collate_fn=dataset.alignCollate(imgH=opt.imgH, maxW=opt.maxW, keep_ratio=opt.keep_ratio))
+    for epoch in range(opt.epoch):
 
-#         for ii, (data, label) in enumerate(data_loader):
-#             img = V(data)
-#             t, padded = converter.encode(label)
-#             txt = V(t)
-#             target = V(padded[1:, :].contiguous().view(-1))
-#             if opt.cuda:
-#                 img = img.cuda(opt.gpuid)
-#                 txt = txt.cuda(opt.gpuid)
-#                 target = target.cuda(opt.gpuid)
+        for ii, (data, label) in enumerate(data_loader):
+            img = V(data)
+            t, padded = converter.encode(label)
+            txt = V(t)
+            target = V(padded[1:, :].contiguous().view(-1))
+            if opt.cuda:
+                img = img.cuda(opt.gpuid)
+                txt = txt.cuda(opt.gpuid)
+                target = target.cuda(opt.gpuid)
 
-#             preds, hidden = sar(img, txt)
-#             cost = criterion(preds, target)
-#             sar.zero_grad()
-#             cost.backward()
-#             optimizer.step()
+            preds, hidden = sar(img, txt)
+            cost = criterion(preds, target)
+            sar.zero_grad()
+            cost.backward()
+            optimizer.step()
+            ii += 1
+            if ii % 10 == 0:
+                vis.line(X=torch.Tensor([ij]), Y=cost.data.view(-1), win='train_loss', update='append' if ii > 10 else None, opts={'title': 'train_loss'})
+            
+            if ii % opt.displayInterval == 0:
+                
+                mes += "[{}/{}][{}/{}] loss: {}<br>".format(epoch, opt.epoch, ii, len(data_loader), loss_avg.val())
+                loss_avg.reset()
+                vis.text(mes, win='text', opts={'title': 'display_message'})
 
-#             if ii 
+            if ii % opt.saveInterval == 0:
+                 torch.save(sar.state_dict(), '{0}/netSAR_{1}_{2}.pth'.format(opt.expr_dir, epoch, ii))
+
+            num = len(data_loader) * epoch + ii
+            if num % opt.lr_decay_every == 0:
+                print('now lr is %f' % opt.lr)
+                if opt.lr > opt.min_lr:
+
+                    opt.lr = opt.lr * opt.lr_decay
+                    for param_group in optimizer.param_groups:
+                        param_group['lr'] = opt.lr
+                    print('lr is decay by a factor %f, now is %f' %(opt.lr_decay, opt.lr))
+        
 
 if __name__ == '__main__':
 
@@ -265,6 +287,8 @@ if __name__ == '__main__':
         val(sar, test_dataset, criterion)
     elif opt.type == 'test':
         test(sar)
+    elif opt.type = 'normal':
+        train_normal(sar)
 
 
 # image = torch.FloatTensor(opt.batchSize, 3, opt.imgH, opt.maxW)
