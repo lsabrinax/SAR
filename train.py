@@ -15,6 +15,7 @@ import dataset
 from model.attnDecoder import SAR, beam_decode
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--env', default='SAR', help='env to display message')
 parser.add_argument('--type', required=True, help='train or val')
 parser.add_argument('--gpuid', type=int, required=True, help='which gpu to run')
 parser.add_argument('--port', type=int, required=True, help='visdom port')
@@ -169,7 +170,7 @@ def test(net):
         print('pred: %-20s' % pred_texts[0])
 
 def train():
-    vis = visdom.Visdom(env='SAR', port=opt.port)
+    vis = visdom.Visdom(env=opt.env, port=opt.port)
     sar.train()
     loss_avg.reset()
     ij = 0
