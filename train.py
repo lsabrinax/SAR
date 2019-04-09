@@ -231,7 +231,7 @@ def train_normal(net):
     sar.train()
     loss_avg.reset()
     mes = ''
-    dataset = dataset.lmdbDataset(root=opt.trainRoot)
+    train_dataset = dataset.lmdbDataset(root=opt.trainRoot)
     data_loader = torch.utils.data.DataLoader(train_dataset, batch_size=opt.batchSize,
             shuffle=True,
             num_workers=int(opt.workers),
