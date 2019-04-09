@@ -105,8 +105,8 @@ if __name__ == '__main__':
             labelList.append(content[1][1:-2])
         labelfile.close()
 
-        labelfile = open('/home/sabrina/text-recognition/Synth90K/Synth90K/split/gt/gt_%d.txt' % ij)
-        imagePathDir ='/home/sabrina/text-recognition/Synth90K/Synth90K/split/'
+        labelfile = open('/home/sabrina/text-recognition/Synth90K/Synth90K/splitimg/gt/gt_%d.txt' % ij)
+        imagePathDir ='/home/sabrina/text-recognition/Synth90K/Synth90K/splitimg/'
         i = 0
         while i < 120000:
             line = labelfile.readline()
