@@ -64,7 +64,7 @@ class lmdbDataset(Dataset):
 
         return (img, label)#img只有一个通道
 
-    def close():
+    def close(self):
         self.env.close()
 
 class TestData(Dataset):
