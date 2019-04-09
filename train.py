@@ -26,7 +26,7 @@ parser.add_argument('--batchSize', type=int, default=32, help='input batch size'
 parser.add_argument('--imgH', type=int, default=48, help='the height of the input image to network')
 parser.add_argument('--maxW', type=int, default=160, help='the width of the input image to network')
 parser.add_argument('--nh', type=int, default=512, help='size of the lstm hidden state')
-parser.add_argument('--nepoch', type=int, default=20, help='number of epoches to train for')
+parser.add_argument('--nepoch', type=int, default=10, help='number of epoches to train for')
 
 parser.add_argument('--cuda', default=True, help='enables cuda')
 parser.add_argument('--ngpu', type=int, default=1, help='number of GPUs to use')
@@ -236,7 +236,7 @@ def train_normal(net):
             shuffle=True,
             num_workers=int(opt.workers),
             collate_fn=dataset.alignCollate(imgH=opt.imgH, maxW=opt.maxW, keep_ratio=opt.keep_ratio))
-    for epoch in range(opt.epoch):
+    for epoch in range(opt.nepoch):
 
         for ii, (data, label) in enumerate(data_loader):
             img = V(data)
@@ -259,7 +259,7 @@ def train_normal(net):
             
             if ii % opt.displayInterval == 0:
                 
-                mes += "[{}/{}][{}/{}] loss: {}<br>".format(epoch, opt.epoch, ii, len(data_loader), loss_avg.val())
+                mes += "[{}/{}][{}/{}] loss: {}<br>".format(epoch, opt.nepoch, ii, len(data_loader), loss_avg.val())
                 loss_avg.reset()
                 vis.text(mes, win='text', opts={'title': 'display_message'})
 
