@@ -255,7 +255,7 @@ def train_normal(net):
             optimizer.step()
             ii += 1
             if ii % 10 == 0:
-                vis.line(X=torch.Tensor([ij]), Y=cost.data.view(-1), win='train_loss', update='append' if ii > 10 else None, opts={'title': 'train_loss'})
+                vis.line(X=torch.Tensor([ii]), Y=cost.data.view(-1), win='train_loss', update='append' if ii > 10 else None, opts={'title': 'train_loss'})
             
             if ii % opt.displayInterval == 0:
                 
