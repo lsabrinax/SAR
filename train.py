@@ -226,34 +226,34 @@ def train():
                         print('lr is decay by a factor %f, now is %f' %(opt.lr_decay, opt.lr))
         train_dataset.close()
 
-def train_normal(net):
-    is = visdom.Visdom(env=opt.env, port=opt.port)
-    sar.train()
-    loss_avg.reset()
-    dataset = dataset.lmdbDataset(root=opt.trainRoot)
-    data_loader = torch.utils.data.DataLoader(train_dataset, batch_size=opt.batchSize,
-            shuffle=True,
-            num_workers=int(opt.workers),
-            collate_fn=dataset.alignCollate(imgH=opt.imgH, maxW=opt.maxW, keep_ratio=opt.keep_ratio))
-    for epoch in range(opt.epoch):
+# def train_normal(net):
+#     vis = visdom.Visdom(env=opt.env, port=opt.port)
+#     sar.train()
+#     loss_avg.reset()
+#     dataset = dataset.lmdbDataset(root=opt.trainRoot)
+#     data_loader = torch.utils.data.DataLoader(train_dataset, batch_size=opt.batchSize,
+#             shuffle=True,
+#             num_workers=int(opt.workers),
+#             collate_fn=dataset.alignCollate(imgH=opt.imgH, maxW=opt.maxW, keep_ratio=opt.keep_ratio))
+#     for epoch in range(opt.epoch):
 
-        for ii, (data, label) in enumerate(data_loader):
-            img = V(data)
-            t, padded = converter.encode(label)
-            txt = V(t)
-            target = V(padded[1:, :].contiguous().view(-1))
-            if opt.cuda:
-                img = img.cuda(opt.gpuid)
-                txt = txt.cuda(opt.gpuid)
-                target = target.cuda(opt.gpuid)
+#         for ii, (data, label) in enumerate(data_loader):
+#             img = V(data)
+#             t, padded = converter.encode(label)
+#             txt = V(t)
+#             target = V(padded[1:, :].contiguous().view(-1))
+#             if opt.cuda:
+#                 img = img.cuda(opt.gpuid)
+#                 txt = txt.cuda(opt.gpuid)
+#                 target = target.cuda(opt.gpuid)
 
-            preds, hidden = sar(img, txt)
-            cost = criterion(preds, target)
-            sar.zero_grad()
-            cost.backward()
-            optimizer.step()
+#             preds, hidden = sar(img, txt)
+#             cost = criterion(preds, target)
+#             sar.zero_grad()
+#             cost.backward()
+#             optimizer.step()
 
-            if ii 
+#             if ii 
 
 if __name__ == '__main__':
 
