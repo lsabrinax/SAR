@@ -82,7 +82,7 @@ def weights_init(m):
         m.weight.data.normal_(1.0, 0.02)
 
 
-sar = SAR(nchannel=nchannel, nhidden=opt.nh, output_size=nclass, p=opt.dropout)
+sar = SAR(nchannel=nchannel, nhidden=opt.nh, output_size=nclass, p=opt.dropout, batch_size=opt.batchSize)
 sar.apply(weights_init)
 
 if opt.pretrained != '':
