@@ -226,7 +226,7 @@ def train():
                         print('lr is decay by a factor %f, now is %f' %(opt.lr_decay, opt.lr))
         train_dataset.close()
 
-def train_normal(net):
+def train_normal():
     vis = visdom.Visdom(env=opt.env, port=opt.port)
     sar.train()
     loss_avg.reset()
@@ -288,7 +288,7 @@ if __name__ == '__main__':
     elif opt.type == 'test':
         test(sar)
     elif opt.type == 'normal':
-        train_normal(sar)
+        train_normal()
 
 
 # image = torch.FloatTensor(opt.batchSize, 3, opt.imgH, opt.maxW)
