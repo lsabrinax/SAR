@@ -247,8 +247,15 @@ def train_normal():
                 img = img.cuda(opt.gpuid)
                 txt = txt.cuda(opt.gpuid)
                 target = target.cuda(opt.gpuid)
-
-            preds, hidden = sar(img, txt)
+            try: 
+                preds, hidden = sar(img, txt)
+            except RuntimeError as e:
+                if 'out of memory' in str(e):
+                    print('|WARNING: ran out of memory!')
+                    if hasattr(torch.cuda, 'empty_cache'):
+                        torch.cuda.empty_cache()
+                else:
+                    raise e
             cost = criterion(preds, target)
             sar.zero_grad()
             cost.backward()
