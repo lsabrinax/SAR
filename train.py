@@ -142,9 +142,9 @@ def val(net, data_set, criterion, max_iter=100):
         cost = criterion(preds, padd_target)
         loss_avg.add(cost)
         for pred, target in zip(pred_texts, cpu_texts):
-
-            print('pred: %-20s, gt: %-20s' % (pred, target))
             target = target.replace('<UNK>', ' ')
+            print('pred: %-20s, gt: %-20s' % (pred, target))
+            
             if pred == target:
                 n_correct += 1
     accuracy = n_correct / float(nsample)
