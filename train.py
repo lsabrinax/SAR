@@ -262,19 +262,20 @@ def train_normal():
             optimizer.step()
             loss_avg.add(cost)
             ii += 1
+            num = len(data_loader) * epoch + ii
             if ii % 10 == 0:
                 vis.line(X=torch.Tensor([ii]), Y=cost.data.view(-1), win='train_loss', update='append' if ii > 10 else None, opts={'title': 'train_loss'})
             
-            if ii % opt.displayInterval == 0:
+            if num % opt.displayInterval == 0:
                 
                 mes += "[{}/{}][{}/{}] loss: {}<br>".format(epoch, opt.nepoch, ii, len(data_loader), loss_avg.val())
                 loss_avg.reset()
                 vis.text(mes, win='text', opts={'title': 'display_message'})
 
-            if ii % opt.saveInterval == 0:
+            if num % opt.saveInterval == 0:
                  torch.save(sar.state_dict(), '{0}/netSAR_{1}_{2}.pth'.format(opt.expr_dir, epoch, ii))
 
-            num = len(data_loader) * epoch + ii
+            
             if num % opt.lr_decay_every == 0:
                 print('now lr is %f' % opt.lr)
                 if opt.lr > opt.min_lr:
