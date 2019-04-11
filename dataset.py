@@ -83,7 +83,7 @@ class TestData(Dataset):
         except:
             print('img has Corrupted!')
             return self[index+1]
-        return pilimg
+        return (pilimg, imgpath)
     def __len__(self):
         return len(self.imgs)
 

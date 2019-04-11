@@ -11,7 +11,7 @@ import torch.nn as nn
 import os
 import utils
 import dataset
-
+import json
 from model.attnDecoder import SAR, beam_decode
 
 parser = argparse.ArgumentParser()
@@ -157,7 +157,8 @@ def test(net):
     test_dataset = dataset.TestData(opt.valRoot)
     n_correct = 0
     nsample = 0
-    for img in test_dataset:
+    gt = {}
+    for img, path in test_dataset:
         w, h = img.size
         transform = dataset.resizeNormalize((opt.imgH, int(w / float(h) * opt.imgH)))
         img = transform(img)
@@ -167,7 +168,11 @@ def test(net):
         hidden_state, feature_map = net.encoder(image)
         decoder_patch = beam_decode(net.decoder, converter, hidden_state, opt, feature_map)
         pred_texts = converter.decode(decoder_patch)
+        gt[path] = [{"transcription": pred_texts[0]}]
         print('pred: %-20s' % pred_texts[0])
+    with open(opt.valRoot+'gt.json', w) as f:
+        jsoon.dump(gt, f)
+        print('save gt done!')
 
 def train():
     vis = visdom.Visdom(env=opt.env, port=opt.port)
