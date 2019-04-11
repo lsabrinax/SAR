@@ -142,7 +142,8 @@ def val(net, data_set, criterion, max_iter=100):
         cost = criterion(preds, padd_target)
         loss_avg.add(cost)
         for pred, target in zip(pred_texts, cpu_texts):
-            pred = pred.replace('<UNK>', ' ')
+            pred = pred.replace('<UNK>', ' ')。
+
             print('pred: %-20s, gt: %-20s' % (pred, target))
             
             if pred == target:
@@ -162,7 +163,9 @@ def test(net):
     gt = {}
     for img, path in test_dataset:
         w, h = img.size
-        transform = dataset.resizeNormalize((opt.imgH, int(w / float(h) * opt.imgH)))
+        W = int(w / float(h) * opt.imgH)
+        W = min(max(W, opt.imgH), opt.maxW)
+        transform = dataset.resizeNormalize((opt.imgH, W))
         img = transform(img)
         image = V(img).unsqueeze(0)
         if opt.cuda:
