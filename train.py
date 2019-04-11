@@ -270,7 +270,7 @@ def train_normal():
             loss_avg.add(cost)
             ii += 1
             num = len(data_loader) * epoch + ii
-            if ii % 10 == 0:
+            if num % 10 == 0:
                 vis.line(X=torch.Tensor([ii]), Y=cost.data.view(-1), win='train_loss', update='append' if ii > 10 else None, opts={'title': 'train_loss'})
             
             if num % opt.displayInterval == 0:
