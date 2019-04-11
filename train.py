@@ -175,7 +175,7 @@ def test(net):
         pred_texts = converter.decode(decoder_patch)
         gt[path] = [{"transcription": pred_texts[0]}]
         print('pred: %-20s' % pred_texts[0])
-    with open(opt.valRoot+'gt.json', w) as f:
+    with open(opt.valRoot+'gt.json', 'w') as f:
         jsoon.dump(gt, f)
         print('save gt done!')
 
