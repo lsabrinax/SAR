@@ -142,7 +142,7 @@ def val(net, data_set, criterion, max_iter=100):
         cost = criterion(preds, padd_target)
         loss_avg.add(cost)
         for pred, target in zip(pred_texts, cpu_texts):
-            pred = pred.replace('<UNK>', ' ')。
+            pred = pred.replace('<UNK>', ' ')
 
             print('pred: %-20s, gt: %-20s' % (pred, target))
             
