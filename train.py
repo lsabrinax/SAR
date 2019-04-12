@@ -166,7 +166,7 @@ def test(net):
         w, h = img.size
         W = int(w / float(h) * opt.imgH)
         W = min(max(W, opt.imgH), opt.maxW)
-        transform = dataset.resizeNormalize((opt.imgH, W))
+        transform = dataset.resizeNormalize((W, opt.imgH))
         img = transform(img)
         image = V(img).unsqueeze(0)
         if opt.cuda:
