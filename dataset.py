@@ -77,7 +77,7 @@ class TestData(Dataset):
 
     def __getitem__(self, index):
         imgpath = self.imgs[index]
-        print(imgpath)
+        # print(imgpath)
         try:
             pilimg = Image.open(imgpath).convert('L')
         except:
