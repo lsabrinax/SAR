@@ -74,7 +74,7 @@ class attenDecoder(nn.Module):
 
 class SAR(nn.Module):
     """docstring for SAR"""
-    def __init__(self, output_size, p, nchannel=1, nhidden=512, depth_size=512, emd_size=512, feature_length=512, batch_size=32):
+    def __init__(self, output_size, p, nchannel=1, nhidden=512, batch_size=32, depth_size=512, emd_size=512, feature_length=512):
         super(SAR, self).__init__()
         self.nchannel = nchannel
         self.nhidden = nhidden
@@ -121,7 +121,7 @@ def beam_decode(decoder, converter, decoder_hiddens, opt, feature_maps=None):
     beam_width = 5#不清楚这个是用来干什么的
     topk = 1
     decoded_batch = []
-
+    scores = []
     for idx in range(decoder_hiddens[0].size(1)):
         if isinstance(decoder_hiddens, tuple):#LSTM case
             #decoder_hidden = decoder_hiddens[:]
@@ -198,6 +198,7 @@ def beam_decode(decoder, converter, decoder_hiddens, opt, feature_maps=None):
 
         for score, n in sorted(endnodes, key=operator.itemgetter(0)):
             utterance = []
+            scores.extend(score)
             utterance.append(n.input)
 
             while n.prevNode != None:
@@ -209,6 +210,6 @@ def beam_decode(decoder, converter, decoder_hiddens, opt, feature_maps=None):
         decoded_batch.append(utterances)
     #decoded_batch = torch.Tensor(decoded_batch)
     #fprint(decoded_batch.size())
-    return decoded_batch
+    return decoded_batch, scores
 
 

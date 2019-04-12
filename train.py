@@ -136,7 +136,7 @@ def val(net, data_set, criterion, max_iter=100):
             padd_target = padd_target.cuda(opt.gpuid)
         
         hidden_state, feature_map = net.encoder(image)
-        decoder_patch = beam_decode(net.decoder, converter, hidden_state, opt, feature_map)
+        decoder_patch, scores = beam_decode(net.decoder, converter, hidden_state, opt, feature_map)
         pred_texts = converter.decode(decoder_patch)
         preds, hidden = sar(image, text) 
         cost = criterion(preds, padd_target)
@@ -162,6 +162,7 @@ def test(net):
     nsample = 0
     gt = {}
     for img, path in test_dataset:
+        path = path.split('/')[-1]
         w, h = img.size
         W = int(w / float(h) * opt.imgH)
         W = min(max(W, opt.imgH), opt.maxW)
@@ -171,9 +172,14 @@ def test(net):
         if opt.cuda:
             image = image.cuda(opt.gpuid)
         hidden_state, feature_map = net.encoder(image)
-        decoder_patch = beam_decode(net.decoder, converter, hidden_state, opt, feature_map)
+        decoder_patch, scores = beam_decode(net.decoder, converter, hidden_state, opt, feature_map)
         pred_texts = converter.decode(decoder_patch)
-        gt[path] = [{"transcription": pred_texts[0]}]
+        gt[path] = [
+             {
+                "transcription": pred_texts[0],
+                "socre": scores[0]
+             }
+        ]
         print('pred: %-20s' % pred_texts[0])
     with open(opt.valRoot+'gt.json', 'w') as f:
         json.dump(gt, f)
