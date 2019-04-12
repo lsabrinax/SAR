@@ -198,7 +198,7 @@ def beam_decode(decoder, converter, decoder_hiddens, opt, feature_maps=None):
 
         for score, n in sorted(endnodes, key=operator.itemgetter(0)):
             utterance = []
-            scores.extend(score)
+            scores.append(score)
             utterance.append(n.input)
 
             while n.prevNode != None:
