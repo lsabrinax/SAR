@@ -92,7 +92,7 @@ print(sar)
 
 if opt.cuda:
     sar.cuda()
-    sar = torch.nn.DataParallel(sar, device_ids=range(opt.ngpu))
+    # sar = torch.nn.DataParallel(sar, device_ids=range(opt.ngpu))
     criterion.cuda()
 
 loss_avg = utils.averager()
@@ -200,8 +200,7 @@ def train():
             batch_size=opt.batchSize,
             shuffle=True,
             num_workers=int(opt.workers),
-            collate_fn=dataset.alignCollate(imgH=opt.imgH, maxW=opt.maxW, keep_ratio=opt.keep_ratio),
-            drop_last=True)
+            collate_fn=dataset.alignCollate(imgH=opt.imgH, maxW=opt.maxW, keep_ratio=opt.keep_ratio))
 
         for y in range(1, 3):
             iy = 0
