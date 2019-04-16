@@ -200,7 +200,8 @@ def train():
             batch_size=opt.batchSize,
             shuffle=True,
             num_workers=int(opt.workers),
-            collate_fn=dataset.alignCollate(imgH=opt.imgH, maxW=opt.maxW, keep_ratio=opt.keep_ratio))
+            collate_fn=dataset.alignCollate(imgH=opt.imgH, maxW=opt.maxW, keep_ratio=opt.keep_ratio),
+            drop_last=True)
 
         for y in range(1, 3):
             iy = 0
