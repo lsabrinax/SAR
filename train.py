@@ -91,9 +91,9 @@ if opt.pretrained != '':
 print(sar)
 
 if opt.cuda:
-    sar.cuda()
+    sar.cuda(opt.gpuid)
     # sar = torch.nn.DataParallel(sar, device_ids=range(opt.ngpu))
-    criterion.cuda()
+    criterion.cuda(opt.gpuid)
 
 loss_avg = utils.averager()
 if opt.adam: 
@@ -132,9 +132,9 @@ def val(net, data_set, criterion, max_iter=100):
         text = V(t)
         padd_target = V(padded[1:, :].contiguous().view(-1))
         if opt.cuda:
-            text = text.cuda()
-            image = imgae.cuda()
-            padd_target = padd_target.cuda()
+            text = text.cuda(opt.gpuid)
+            image = imgae.cuda(opt.gpuid)
+            padd_target = padd_target.cuda(opt.gpuid)
         
         hidden_state, feature_map = net.encoder(image)
         decoder_patch, scores = beam_decode(net.decoder, converter, hidden_state, opt, feature_map)
@@ -171,7 +171,7 @@ def test(net):
         img = transform(img)
         image = V(img).unsqueeze(0)
         if opt.cuda:
-            image = image.cuda()
+            image = image.cuda(opt.gpuid)
         hidden_state, feature_map = net.encoder(image)
         decoder_patch, scores = beam_decode(net.decoder, converter, hidden_state, opt, feature_map)
         pred_texts = converter.decode(decoder_patch)
@@ -210,9 +210,9 @@ def train():
                 txt = V(t)
                 target = V(padded[1:, :].contiguous().view(-1))
                 if opt.cuda:
-                    img = img.cuda()
-                    txt = txt.cuda()
-                    target = target.cuda()
+                    img = img.cuda(opt.gpuid)
+                    txt = txt.cuda(opt.gpuid)
+                    target = target.cuda(opt.gpuid)
                 preds, hidden = sar(img, txt)
                 cost = criterion(preds, target)
                 sar.zero_grad()
@@ -261,9 +261,9 @@ def train_normal():
             txt = V(t)
             target = V(padded[1:, :].contiguous().view(-1))
             if opt.cuda:
-                img = img.cuda()
-                txt = txt.cuda()
-                target = target.cuda()
+                img = img.cuda(opt.gpuid)
+                txt = txt.cuda(opt.gpuid)
+                target = target.cuda(opt.gpuid)
             try: 
                 preds, hidden = sar(img, txt)
             except RuntimeError as e:
@@ -322,13 +322,13 @@ if __name__ == '__main__':
 
 # if opt.cuda:
 #     #print('convert to gpu')
-#     text = text.cuda()
-#     sar = sar.cuda()
+#     text = text.cuda(opt.gpuid)
+#     sar = sar.cuda(opt.gpuid)
 #     # sar = torch.nn.DataParallel(sar, device_ids=0)
 #     #print(image.device)
-#     image = image.cuda()
+#     image = image.cuda(opt.gpuid)
 #     #print(image.device)
-#     criterion = criterion.cuda()
+#     criterion = criterion.cuda(opt.gpuid)
 # #print(image.device)
 # imgae = V(image)
 # #print(image.device)
@@ -389,7 +389,7 @@ if __name__ == '__main__':
 #     preds, hidden = sar(image, text)
 #     target = V(padded[1:, :].contiguous().view(-1))
 #     if opt.cuda:
-#         target = target.cuda()
+#         target = target.cuda(opt.gpuid)
 #     cost = criterion(preds, target)
 #     sar.zero_grad()
 #     cost.backward()
