@@ -249,7 +249,7 @@ def train_normal():
     loss_avg.reset()
     mes = ''
     # train_dataset = dataset.lmdbDataset(root=opt.trainRoot)
-    train_dataset = data.TestData(root=opt.trainRoot, labelfile=opt.trainRoot+'task1/train.txt')
+    train_dataset = dataset.TestData(root=opt.trainRoot, labelfile=opt.trainRoot+'task1/train.txt')
     data_loader = torch.utils.data.DataLoader(train_dataset, batch_size=opt.batchSize,
             shuffle=True,
             num_workers=int(opt.workers),
