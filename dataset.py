@@ -72,6 +72,7 @@ class TestData(Dataset):
     def __init__(self, valroot, labelfile=None):
         
         self.valroot = valroot
+        self.labelfile = labelfile
         imgs = os.listdir(valroot)
         self.imgs = [os.path.join(valroot, img) for img in imgs]
         if labelfile != None:
