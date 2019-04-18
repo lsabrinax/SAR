@@ -96,8 +96,8 @@ class TestData(Dataset):
             return self[index+1]
         if self.labelfile != None:
             label = self.labels[index]
-            return (pilimg, imgpath, label)
-        return (pilimg, imgpath, 0)
+            return (pilimg, label)
+        return (pilimg, imgpath)
     def __len__(self):
         return len(self.imgs)
 
