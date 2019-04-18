@@ -251,7 +251,6 @@ def train_normal():
     # train_dataset = dataset.lmdbDataset(root=opt.trainRoot)
     train_dataset = dataset.TestData(valroot=opt.trainRoot, labelfile=opt.trainRoot+'task1/train.txt')
     data_loader = torch.utils.data.DataLoader(train_dataset, batch_size=opt.batchSize,
-            shuffle=True,
             num_workers=int(opt.workers),
             collate_fn=dataset.alignCollate(imgH=opt.imgH, maxW=opt.maxW, keep_ratio=opt.keep_ratio))
     for epoch in range(opt.nepoch):
@@ -310,7 +309,8 @@ if __name__ == '__main__':
         train()
     elif opt.type == 'val':
         valRoot = opt.valRoot
-        test_dataset = dataset.lmdbDataset(root=valRoot)
+        # test_dataset = dataset.lmdbDataset(root=valRoot)
+        est_dataset = dataset.TestData(valroot=valRoot, labelfile=opt.valRoot+'task1/val.txt')
         val(sar, test_dataset, criterion)
     elif opt.type == 'test':
         test(sar)
