@@ -26,7 +26,7 @@ parser.add_argument('--batchSize', type=int, default=32, help='input batch size'
 parser.add_argument('--imgH', type=int, default=48, help='the height of the input image to network')
 parser.add_argument('--maxW', type=int, default=160, help='the width of the input image to network')
 parser.add_argument('--nh', type=int, default=512, help='size of the lstm hidden state')
-parser.add_argument('--nepoch', type=int, default=10, help='number of epoches to train for')
+parser.add_argument('--nepoch', type=int, default=20, help='number of epoches to train for')
 
 parser.add_argument('--cuda', default=True, help='enables cuda')
 parser.add_argument('--ngpu', type=int, default=1, help='number of GPUs to use')
@@ -248,7 +248,8 @@ def train_normal():
     sar.train()
     loss_avg.reset()
     mes = ''
-    train_dataset = dataset.lmdbDataset(root=opt.trainRoot)
+    # train_dataset = dataset.lmdbDataset(root=opt.trainRoot)
+    train_dataset = data.TestData(root=opt.trainRoot, labelfile=opt.trainRoot+'task1/train.txt')
     data_loader = torch.utils.data.DataLoader(train_dataset, batch_size=opt.batchSize,
             shuffle=True,
             num_workers=int(opt.workers),

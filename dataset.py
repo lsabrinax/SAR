@@ -69,21 +69,35 @@ class lmdbDataset(Dataset):
 
 class TestData(Dataset):
     """docstring for TestData"""
-    def __init__(self, valroot):
+    def __init__(self, valroot, labelfile=None):
         
         self.valroot = valroot
         imgs = os.listdir(valroot)
         self.imgs = [os.path.join(valroot, img) for img in imgs]
+        if labelfile != None:
+            images = []
+            labels = []
+            with open(labelfile, 'r') as f:
+                for line in f.readlines():
+                    content = line.strip().split(' ', 1)
+                    images.append(os.path.join(valroot, content[0]))
+                    labels.append(content[1])
+            self.imgs = images
+            self.labels = labels
 
     def __getitem__(self, index):
         imgpath = self.imgs[index]
+        
         # print(imgpath)
         try:
             pilimg = Image.open(imgpath).convert('L')
         except:
             print('img has Corrupted!')
             return self[index+1]
-        return (pilimg, imgpath)
+        if self.labelfile != None:
+            label = self.labels[index]
+            return (pilimg, imgpath, label)
+        return (pilimg, imgpath, 0)
     def __len__(self):
         return len(self.imgs)
 
@@ -135,9 +149,6 @@ class alignCollate(object):
         images = torch.cat([t.unsqueeze(0) for t in images], 0)
 
         return images, labels
-
-
-
 
 
 
