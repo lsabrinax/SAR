@@ -192,7 +192,7 @@ def train():
     loss_avg.reset()
     ij = 0
     mes = ''
-    for i in range(15, 21):
+    for i in range(16, 21):
         trainroot = os.path.join(opt.trainRoot, 'train_%d'%i)
         train_dataset = dataset.lmdbDataset(root=trainroot)
         assert train_dataset
