@@ -309,8 +309,8 @@ if __name__ == '__main__':
         train()
     elif opt.type == 'val':
         valRoot = opt.valRoot
-        # test_dataset = dataset.lmdbDataset(root=valRoot)
-        test_dataset = dataset.TestData(valroot=valRoot, labelfile=opt.valRoot+'task1/val.txt')
+        test_dataset = dataset.lmdbDataset(root=valRoot)
+        # test_dataset = dataset.TestData(valroot=valRoot, labelfile=opt.valRoot+'task1/val.txt')
         val(sar, test_dataset, criterion)
     elif opt.type == 'test':
         test(sar)
