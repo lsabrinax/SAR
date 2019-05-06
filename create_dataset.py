@@ -236,7 +236,7 @@ if __name__ == '__main__':
             labelList.append(content[1][2:-2])
         labelfile.close()
 
-        imagePathDir='/home/sabrina/data/text-recognition-benchmark/IIIT5K/split'
+        imagePathDir='/home/sabrina/data/text-recognition-benchmark/IIIT5K/split/'
         labelfile =open('/home/sabrina/data/text-recognition-benchmark/IIIT5K/split/gt.txt')
         while 1:
             line = labelfile.readline()
