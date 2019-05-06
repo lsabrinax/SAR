@@ -55,6 +55,8 @@ parser.add_argument('--random_sample', action='store_true', help='whether to sam
 opt = parser.parse_args()
 print(opt)
 
+if opt.keep_ratio:
+    print('keep ratio!')
 
 if not os.path.exists(opt.expr_dir):
     os.makedirs(opt.expr_dir)

@@ -44,44 +44,60 @@ def createDataset(outputPath, imagePathList, labelList, lexiconList=None, checkV
     """
     assert(len(imagePathList) == len(labelList))
     nSamples = len(imagePathList)
-    env = lmdb.open(outputPath, map_size=1099511627776)
-    cache = {}
-    cnt = 1
-    for i in range(nSamples):
-        imagePath = imagePathList[i]
-        label = labelList[i]
-        
-        if not os.path.exists(imagePath):
-            print('%s does not exist' % imagePath)
-            continue
-        
-        # if checkValid:
-        #     if not checkImageIsValid(imageBin):
-        #         print('%s is not a valid image' % imagePath)
-        #         continue
-        try:
-            cv2.imread(imagePath)
-        except:
-            print('%s is not a valid image' % imagePath)
-            continue
-        with open(imagePath, 'rb') as f:
-                imageBin = f.read()            
+    # env = lmdb.open(outputPath, map_size=1099511627776)
+    num = 0
+    with open(outputPath+'gt.txt', 'w') as txt:
+        for i in range(nSamples):
+            imagePath = imagePathList[i]
+            label = labelList[i]
 
-        imageKey = b'image-%09d' % cnt
-        labelKey = b'label-%09d' % cnt
-        cache[imageKey] = imageBin
-        cache[labelKey] = label.encode()
-        if lexiconList:
-            lexiconKey = 'lexicon-%09d' % cnt
-            cache[lexiconKey] = ' '.join(lexiconList[i])
-        if cnt % 1000 == 0:
-            writeCache(env, cache)
-            cache = {}
-            print('Written %d / %d' % (cnt, nSamples))
-        cnt += 1
-    nSamples = cnt-1
-    cache[b'num-samples'] = str(nSamples).encode()
-    writeCache(env, cache)
+            if not os.path.exists(imagePath):
+                print('%s does not exist' % imagePath)
+                continue
+            try:
+                cv2.imread(imagePath)
+            except:
+                print('%s is not a valid image' % imagePath)
+                continue
+                num += 1
+            txt.write(imagePath+' '+label+'\n')
+    # cache = {}
+    # cnt = 1
+    # for i in range(nSamples):
+    #     imagePath = imagePathList[i]
+    #     label = labelList[i]
+    #
+    #     if not os.path.exists(imagePath):
+    #         print('%s does not exist' % imagePath)
+    #         continue
+    #
+    #     # if checkValid:
+    #     #     if not checkImageIsValid(imageBin):
+    #     #         print('%s is not a valid image' % imagePath)
+    #     #         continue
+    #     try:
+    #         cv2.imread(imagePath)
+    #     except:
+    #         print('%s is not a valid image' % imagePath)
+    #         continue
+    #     with open(imagePath, 'rb') as f:
+    #             imageBin = f.read()
+    #
+    #     imageKey = b'image-%09d' % cnt
+    #     labelKey = b'label-%09d' % cnt
+    #     cache[imageKey] = imageBin
+    #     cache[labelKey] = label.encode()
+    #     if lexiconList:
+    #         lexiconKey = 'lexicon-%09d' % cnt
+    #         cache[lexiconKey] = ' '.join(lexiconList[i])
+    #     if cnt % 1000 == 0:
+    #         writeCache(env, cache)
+    #         cache = {}
+    #         print('Written %d / %d' % (cnt, nSamples))
+    #     cnt += 1
+    # nSamples = cnt-1
+    # cache[b'num-samples'] = str(nSamples).encode()
+    # writeCache(env, cache)
     print('Created dataset with %d samples' % nSamples)
 
 
