@@ -104,7 +104,7 @@ def createDataset(outputPath, imagePathList, labelList, lexiconList=None, checkV
 if __name__ == '__main__':
     FPath=os.getcwd()
     
-    for ij in range(6,21):
+    for ij in range(1,21):
         imageList=[]
         labelList=[]
         outputPath=FPath+'/DataDB/train_'+str(ij)+'/'   # separate the training data into different groups
