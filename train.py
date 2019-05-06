@@ -13,6 +13,7 @@ import utils
 import dataset
 import json
 from model.attnDecoder import SAR, beam_decode
+import datetime
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--env', default='SAR', help='env to display message')
@@ -196,7 +197,10 @@ def train():
     mes = ''
     for i in range(16, 21):
         trainroot = os.path.join(opt.trainRoot, 'train_%d'%i)
+        start = datetime.datetime.now()
         train_dataset = dataset.lmdbDataset(root=trainroot)
+        end = datetime.datetime.now()
+        print((end -start).seconds + 'seconds!')
         assert train_dataset
         data_loader = torch.utils.data.DataLoader(train_dataset,
             batch_size=opt.batchSize,
