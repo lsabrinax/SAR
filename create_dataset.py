@@ -104,10 +104,11 @@ def createDataset(outputPath, imagePathList, labelList, lexiconList=None, checkV
 if __name__ == '__main__':
     FPath=os.getcwd()
     
-    for ij in range(1,21):
+    for ij in range(6,21):
         imageList=[]
         labelList=[]
         outputPath=FPath+'/DataDB/train_'+str(ij)+'/'   # separate the training data into different groups
+        os.makedirs(outputPath)
         labelfile =open('/home/sabrina/data/text-recognition/SAR_SynthAdd/SynthText_Add/annotationlist/gt_'+str(ij)+'.txt')
         imagePathDir ='/home/sabrina/data/text-recognition/SAR_SynthAdd/SynthText_Add/'
         while 1:
