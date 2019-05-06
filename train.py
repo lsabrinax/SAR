@@ -74,7 +74,7 @@ if torch.cuda.is_available() and not opt.cuda:
 
 converter = utils.strLabelConverter(opt.lexicon)
 nclass = converter.nc
-nchannel = 1
+nchannel = 3
 criterion = nn.CrossEntropyLoss()
 
 def weights_init(m):
@@ -112,48 +112,101 @@ def val(net, data_set, criterion, max_iter=100):
         p.requires_grad = False
     net.eval()
 
-    data_loader = torch.utils.data.DataLoader(data_set,
-        batch_size=opt.batchSize,
-        shuffle=True,
-        num_workers=int(opt.workers),
-        collate_fn=dataset.alignCollate(imgH=opt.imgH, maxW=opt.maxW, keep_ratio=opt.keep_ratio))
-    val_iter = iter(data_loader)
-    i = 0
-    n_correct = 0
-    loss_avg = utils.averager()
     nsample = 0
-    max_iter = len(data_loader)
+    ncorrect = 0
+    # loss_avg = utils.averager
+    for img, label in data_set:
+        # t, padded = converter.encode(label)
+        nsample += 1
+        w, h = img.size
+        if h > w:
+            imgclock = img.rotate(-90)
+            imganticlock = img.rotate(90)
+            transform = dataset.resizeNormalize(img.size)
+            img = transform(img)
+            img = V(img).unsqueeze(0)
+            transform = dataset.resizeNormalize(imgclock.size)
+            imgclock = transform(imgclock)
+            imgclock = V(imgclock).unsqueeze(0)
+            transform = dataset.resizeNormalize(imganticlock.size)
+            imganticlock = transform(imganticlock)
+            imganticlock = V(imganticlock).unsqueeze(0)
+            if opt.cuda:
+                image = img.cuda()
+                imageclock = imgclock.cuda()
+                imageanticlock = imganticlock.cuda()
+            hidden_state1, feature_map1 = net.encoder(image)
+            hidden_state2, feature_map2 = net.encoder(imageclock)
+            hidden_state3, feature_map3 = net.encoder(imageanticlock)
+            decoded_patch1, scores1 = beam_decode(net.decoder, converter, hidden_state1, opt, feature_map1)
+            decoded_patch2, scores2 = beam_decode(net.decoder, converter, hidden_state2, opt, feature_map2)
+            decoded_patch3, scores3 = beam_decode(net.decoder, converter, hidden_state3, opt, feature_map3)
+            if scores1 < scores2:
+                if scores1 < scores3:
+                    decoded_patch = decoded_patch1
+                else:
+                    decoded_patch = decoded_patch3
+            elif scores2 < scores3:
+                decoded_patch = decoded_patch2
+            else:
+                decoded_patch = decoded_patch3
+            predtext = converter.decode(decoded_patch)
+        else:
+            transform = dataset.resizeNormalize(img.size)
+            img = V(img).unsqueeze(0)
+            if opt.cuda:
+                image = img.cuda()
+            hidden_state, feature_map = net.encoder(image)
+            decoded_patch, scores = beam_decode(net.decoder, converter, hidden_state, opt, feature_map)
+            predtext = converter.decode(decoded_patch)
+        if predtext[0] == label:
+            ncorrect += 1
+        print('pred: %-20s, gt: %-20s' % (predtext,label))
+    accu = ncorrect / float(nsample)
+    print('accuracy is %f' % accu)
 
-    for i in range(max_iter):
-        data = val_iter.next()
-        i += 1
-        cpu_images, cpu_texts = data
-        batch_size = cpu_images.size(0)
-        nsample += batch_size
-        t, padded = converter.encode(cpu_texts)#padded:inttensor
-        imgae = V(cpu_images)
-        text = V(t)
-        padd_target = V(padded[1:, :].contiguous().view(-1))
-        if opt.cuda:
-            text = text.cuda(opt.gpuid)
-            image = imgae.cuda(opt.gpuid)
-            padd_target = padd_target.cuda(opt.gpuid)
-        
-        hidden_state, feature_map = net.encoder(image)
-        decoder_patch, scores = beam_decode(net.decoder, converter, hidden_state, opt, feature_map)
-        pred_texts = converter.decode(decoder_patch)
-        preds, hidden = sar(image, text) 
-        cost = criterion(preds, padd_target)
-        loss_avg.add(cost)
-        for pred, target in zip(pred_texts, cpu_texts):
-            pred = pred.replace('<UNK>', ' ')
-
-            print('pred: %-20s, gt: %-20s' % (pred, target), )
-            
-            if pred == target:
-                n_correct += 1
-    accuracy = n_correct / float(nsample)
-    print('Test loss: %f, accuracy: %f' % (loss_avg.val(), accuracy))
+    # data_loader = torch.utils.data.DataLoader(data_set,
+    #     batch_size=opt.batchSize,
+    #     shuffle=True,
+    #     num_workers=int(opt.workers),
+    #     collate_fn=dataset.alignCollate(imgH=opt.imgH, maxW=opt.maxW, keep_ratio=opt.keep_ratio))
+    # val_iter = iter(data_loader)
+    # i = 0
+    # n_correct = 0
+    # loss_avg = utils.averager()
+    # nsample = 0
+    # # max_iter = len(data_loader)
+    #
+    # for path, label  in data_set:
+    #     # data = val_iter.next()
+    #     # i += 1
+    #     cpu_images, cpu_texts = data
+    #     # batch_size = cpu_images.size(0)
+    #     nsample += batch_size
+    #     t, padded = converter.encode(cpu_texts)#padded:inttensor
+    #     imgae = V(cpu_images)
+    #     text = V(t)
+    #     padd_target = V(padded[1:, :].contiguous().view(-1))
+    #     if opt.cuda:
+    #         text = text.cuda(opt.gpuid)
+    #         image = imgae.cuda(opt.gpuid)
+    #         padd_target = padd_target.cuda(opt.gpuid)
+    #
+    #     hidden_state, feature_map = net.encoder(image)
+    #     decoder_patch, scores = beam_decode(net.decoder, converter, hidden_state, opt, feature_map)
+    #     pred_texts = converter.decode(decoder_patch)
+    #     preds, hidden = sar(image, text)
+    #     cost = criterion(preds, padd_target)
+    #     loss_avg.add(cost)
+    #     for pred, target in zip(pred_texts, cpu_texts):
+    #         pred = pred.replace('<UNK>', ' ')
+    #
+    #         print('pred: %-20s, gt: %-20s' % (pred, target), )
+    #
+    #         if pred == target:
+    #             n_correct += 1
+    # accuracy = n_correct / float(nsample)
+    # print('Test loss: %f, accuracy: %f' % (loss_avg.val(), accuracy))
     # return accuracy, loss_avg.val()
 
 def test(net):
