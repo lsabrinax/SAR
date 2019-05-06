@@ -17,50 +17,60 @@ class lmdbDataset(Dataset):
     def __init__(self, root=None, transform=None, target_transform=None):
         #super(lmdbDataset, self).__init__()
         
-        self.env = lmdb.open(
-            root,
-            max_readers=1,
-            readonly=True,
-            lock=False,
-            readahead=False,
-            meminit=False)
-
-        if not self.env:
-            print('cannot creat lmdb from %s' % root)
-            sys.exit(0)
-
-        with self.env.begin(write=False) as txn:
-            nSamples = int(txn.get('num-samples'.encode()).decode())
-            self.nSamples = nSamples
+        # self.env = lmdb.open(
+        #     root,
+        #     max_readers=1,
+        #     readonly=True,
+        #     lock=False,
+        #     readahead=False,
+        #     meminit=False)
+        #
+        # if not self.env:
+        #     print('cannot creat lmdb from %s' % root)
+        #     sys.exit(0)
+        #
+        # with self.env.begin(write=False) as txn:
+        #     nSamples = int(txn.get('num-samples'.encode()).decode())
+        #     self.nSamples = nSamples
+        with open(os.path.join(root, 'gt.txt'), 'r') as txt:
+            self.imgs = txt.readlines()
         self.transform = transform
         self.target_transform = target_transform
 
     def __len__(self):
-        return self.nSamples
+        return len(self.imgs)
 
     def __getitem__(self, index):
         assert index <= len(self), 'index range error'
-        index += 1
-        with self.env.begin(write=False) as txn:
-            img_key = 'image-%09d' % index
-            imgbuf = txn.get(img_key.encode())
-            # print(imgbuf)
-
-            buf = six.BytesIO()
-            buf.write(imgbuf)
-            buf.seek(0)
-
-            try:
-                img = Image.open(buf).convert('L')
-            except IOError:
-                print('Corrupted image for %d' % index)
-                return self[index+1]
-
-            if self.transform is not None:
-                img = self.transform(img)
-
-            label_key = 'label-%09d' % index
-            label = str(txn.get(label_key.encode()).decode())
+        line = self.imgs[index]
+        content = line.strip().split(' ', 1)
+        if len(content) != 2:
+            print('line is fomat is wrong!')
+            return self[index+1]
+        imgpath = content[0]
+        label = content[1]
+        img = Image.open((imgpath))
+        # index += 1
+        # with self.env.begin(write=False) as txn:
+        #     img_key = 'image-%09d' % index
+        #     imgbuf = txn.get(img_key.encode())
+        #     # print(imgbuf)
+        #
+        #     buf = six.BytesIO()
+        #     buf.write(imgbuf)
+        #     buf.seek(0)
+        #
+        #     try:
+        #         img = Image.open(buf).convert('L')
+        #     except IOError:
+        #         print('Corrupted image for %d' % index)
+        #         return self[index+1]
+        #
+        #     if self.transform is not None:
+        #         img = self.transform(img)
+        #
+        #     label_key = 'label-%09d' % index
+        #     label = str(txn.get(label_key.encode()).decode())
 
         return (img, label)#img只有一个通道
 
@@ -91,7 +101,7 @@ class TestData(Dataset):
         
         # print(imgpath)
         try:
-            pilimg = Image.open(imgpath).convert('L')
+            pilimg = Image.open(imgpath)
         except:
             print('img has Corrupted!')
             return self[index+1]
@@ -119,7 +129,7 @@ class resizeNormalize(object):
 
 class alignCollate(object):
     """docstring for alignCollate"""
-    def __init__(self, imgH=48, maxW=160, keep_ratio=False, min_ratio=1):
+    def __init__(self, imgH=48, maxW=160, keep_ratio=True, min_ratio=1):
         # super(alignCollate, self).__init__()
         self.imgH = imgH
         # self.minW = minW
