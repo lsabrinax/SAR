@@ -233,18 +233,18 @@ if __name__ == '__main__':
             labelList.append(content[1][1:-2])
         labelfile.close()
 
-        labelfile =open('/home/sabrina/data/text-recognition-benchmark/coco/coco-text/train2014/val/gt.txt')
-        imagePathDir='/home/sabrina/data/text-recognition-benchmark/coco/coco-text/train2014/val/'
-        while 1:
-            line = labelfile.readline()
-            if not line:
-                break
-            # print(line)
-            content=line.split(',', 1)
-            imagePath=imagePathDir+content[0]
-            imageList.append(imagePath)
-            ll=len(content[0])
-            labelList.append(content[1][1:-2])
-        labelfile.close()
+        # labelfile =open('/home/sabrina/data/text-recognition-benchmark/coco/coco-text/train2014/val/gt.txt')
+        # imagePathDir='/home/sabrina/data/text-recognition-benchmark/coco/coco-text/train2014/val/'
+        # while 1:
+        #     line = labelfile.readline()
+        #     if not line:
+        #         break
+        #     # print(line)
+        #     content=line.split(',', 1)
+        #     imagePath=imagePathDir+content[0]
+        #     imageList.append(imagePath)
+        #     ll=len(content[0])
+        #     labelList.append(content[1][1:-2])
+        # labelfile.close()
 
         createDataset(outputPath, imageList, labelList, lexiconList=None, checkValid=True)
