@@ -108,7 +108,8 @@ if __name__ == '__main__':
         imageList=[]
         labelList=[]
         outputPath=FPath+'/DataDB/train_'+str(ij)+'/'   # separate the training data into different groups
-        os.makedirs(outputPath)
+        if not os.path.exists(outputPath):
+            os.makedirs(outputPath)
         labelfile =open('/home/sabrina/data/text-recognition/SAR_SynthAdd/SynthText_Add/annotationlist/gt_'+str(ij)+'.txt')
         imagePathDir ='/home/sabrina/data/text-recognition/SAR_SynthAdd/SynthText_Add/'
         while 1:
