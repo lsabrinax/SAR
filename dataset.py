@@ -166,7 +166,7 @@ class alignCollate(object):
         images = [transform(image) for image in images]
         for img in images:
             print(img.shape)
-        images = torch.cat([t.unsqueeze(0) for t in images], 0)
+        images = torch.cat([t.unsqueeze(0) if t.shape[0] == 3 else print('img shape is', t.shape) for t in images], 0)
 
         return images, labels
 
