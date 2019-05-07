@@ -50,12 +50,12 @@ class lmdbDataset(Dataset):
         imgpath = content[0]
         label = content[1]
         try:
-            img = Image.open(imgpath)
+            img = Image.open(imgpath).convert('RGB')
         except:
             print('img has cropted!')
             return self[index+1]
-        data = self.transform(img)
-        print(imgpath, data.shape)
+        # data = self.transform(img)
+        # print(imgpath, data.shape)
         # index += 1
         # with self.env.begin(write=False) as txn:
         #     img_key = 'image-%09d' % index
@@ -105,7 +105,7 @@ class TestData(Dataset):
         
         # print(imgpath)
         try:
-            pilimg = Image.open(imgpath)
+            pilimg = Image.open(imgpath).convert('RGB')
         except:
             print('img has Corrupted!')
             return self[index+1]
@@ -164,10 +164,10 @@ class alignCollate(object):
 
         transform = resizeNormalize((maxW, imgH))
         images = [transform(image) for image in images]
-        for img in images:
-            print(img.shape)
-        images = torch.cat([t.unsqueeze(0) if t.shape[0] == 3 else print('img shape is', t.shape) for t in images], 0)
-
+        # for img in images:
+        #     print(img.shape)
+        # images = torch.cat([t.unsqueeze(0) if t.shape[0] == 3 else print('img shape is', t.shape) for t in images], 0)
+        images = torch.cat([t.unsqueeze(0) for t in images], 0)
         return images, labels
 
 
