@@ -253,7 +253,7 @@ def train():
         start = datetime.datetime.now()
         train_dataset = dataset.lmdbDataset(root=trainroot)
         end = datetime.datetime.now()
-        print((end -start).seconds + 'seconds!')
+        print((end -start).seconds,'seconds!')
         assert train_dataset
         data_loader = torch.utils.data.DataLoader(train_dataset,
             batch_size=opt.batchSize,
