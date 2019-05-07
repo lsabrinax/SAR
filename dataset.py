@@ -143,7 +143,8 @@ class alignCollate(object):
 
     def __call__(self, batch):
         images, labels = zip(*batch)
-
+        for img in images:
+            print(img.shape)
         imgH = self.imgH
         maxW = self.maxW
         if self.keep_ratio:
@@ -160,8 +161,7 @@ class alignCollate(object):
 
         transform = resizeNormalize((maxW, imgH))
         images = [transform(image) for image in images]
-        for img in images:
-            print(img.shape)
+
         images = torch.cat([t.unsqueeze(0) for t in images], 0)
 
         return images, labels
