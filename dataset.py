@@ -126,7 +126,7 @@ class resizeNormalize(object):
     def __call__(self, img):
         img = img.resize(self.size, self.interpolation)
         img = self.toTenosr(img)
-        print(img.shape)
+        # print(img.shape)
         img.sub_(0.5).div_(0.5)#这里可以换一下
         return img
 
@@ -160,6 +160,8 @@ class alignCollate(object):
 
         transform = resizeNormalize((maxW, imgH))
         images = [transform(image) for image in images]
+        for img in images:
+            print(img.shape)
         images = torch.cat([t.unsqueeze(0) for t in images], 0)
 
         return images, labels
