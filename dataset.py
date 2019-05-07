@@ -49,7 +49,11 @@ class lmdbDataset(Dataset):
             return self[index+1]
         imgpath = content[0]
         label = content[1]
-        img = Image.open(imgpath)
+        try:
+            img = Image.open(imgpath)
+        except:
+            print('img has cropted!')
+            return self[index+1]
         # index += 1
         # with self.env.begin(write=False) as txn:
         #     img_key = 'image-%09d' % index
