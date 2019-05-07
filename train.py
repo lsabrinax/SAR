@@ -248,7 +248,7 @@ def train():
     loss_avg.reset()
     ij = 0
     mes = ''
-    for i in range(16, 21):
+    for i in range(1, 21):
         trainroot = os.path.join(opt.trainRoot, 'train_%d'%i)
         start = datetime.datetime.now()
         train_dataset = dataset.lmdbDataset(root=trainroot)
