@@ -14,7 +14,7 @@ import os
 
 class lmdbDataset(Dataset):
     """docstring for lmdbDataset"""
-    def __init__(self, root=None, transform=None, target_transform=None):
+    def __init__(self, root=None, transform=transforms.ToTensor(), target_transform=None):
         #super(lmdbDataset, self).__init__()
         
         # self.env = lmdb.open(
@@ -54,6 +54,8 @@ class lmdbDataset(Dataset):
         except:
             print('img has cropted!')
             return self[index+1]
+        data = self.transform(img)
+        print(imgpath, data.shape)
         # index += 1
         # with self.env.begin(write=False) as txn:
         #     img_key = 'image-%09d' % index
@@ -143,9 +145,9 @@ class alignCollate(object):
 
     def __call__(self, batch):
         images, labels = zip(*batch)
-        print('images length is %d' % len(images))
-        for img in images:
-            print(img.size)
+        # print('images length is %d' % len(images))
+        # for img in images:
+        #     print(img.size)
         imgH = self.imgH
         maxW = self.maxW
         if self.keep_ratio:
@@ -162,8 +164,8 @@ class alignCollate(object):
 
         transform = resizeNormalize((maxW, imgH))
         images = [transform(image) for image in images]
-        for img in images:
-            print(img.shape)
+        # for img in images:
+        #     print(img.shape)
         images = torch.cat([t.unsqueeze(0) for t in images], 0)
 
         return images, labels
