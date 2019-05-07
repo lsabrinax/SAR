@@ -164,8 +164,8 @@ class alignCollate(object):
 
         transform = resizeNormalize((maxW, imgH))
         images = [transform(image) for image in images]
-        # for img in images:
-        #     print(img.shape)
+        for img in images:
+            print(img.shape)
         images = torch.cat([t.unsqueeze(0) for t in images], 0)
 
         return images, labels
