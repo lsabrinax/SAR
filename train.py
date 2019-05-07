@@ -300,7 +300,7 @@ def train():
                         for param_group in optimizer.param_groups:
                             param_group['lr'] = opt.lr
                         print('lr is decay by a factor %f, now is %f' %(opt.lr_decay, opt.lr))
-        train_dataset.close()
+        # train_dataset.close()
 
 def train_normal():
     vis = visdom.Visdom(env=opt.env, port=opt.port)
