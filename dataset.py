@@ -126,6 +126,7 @@ class resizeNormalize(object):
     def __call__(self, img):
         img = img.resize(self.size, self.interpolation)
         img = self.toTenosr(img)
+        print(img.shape)
         img.sub_(0.5).div_(0.5)#这里可以换一下
         return img
 
