@@ -13,7 +13,8 @@ class strLabelConverter(object):
         with open(lexicon_file, 'r') as f:
             
             for ix, line in enumerate(f.readlines()):
-                self.ch2ix[line.strip()[0]] = ix
+                print(line[0])
+                self.ch2ix[line[0]] = ix
 
         self.ch2ix['<START>'] = len(self.ch2ix)
         self.ch2ix['<END>'] = len(self.ch2ix)
