@@ -143,6 +143,7 @@ class alignCollate(object):
 
     def __call__(self, batch):
         images, labels = zip(*batch)
+        print('images length is %d' % len(images))
         for img in images:
             print(img.size)
         imgH = self.imgH
