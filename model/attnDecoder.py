@@ -21,21 +21,30 @@ class Attn(nn.Module):
         featureH = feature_map.size(2)
         featureW = feature_map.size(3)
         feature_size = feature_map.size(0)
-        generate_feature = self.conv1(feature_map).unsqueeze(0)#b * depth_size * h * w
-        generate_feature = generate_feature.repeat(seq_len, 1, 1, 1, 1)#seq_len * b * depth_size * h * w
-        title_hidden_state = self.linear(hidden_state).unsqueeze(3).unsqueeze(3)# seq_len * b * d * 1 * 1
+        feature_map_old = feature_map
+        # generate_feature = self.conv1(feature_map).unsqueeze(0)#b * depth_size * h * w
+        feature_map = self.conv1(feature_map).unsqueeze(0)
+        # generate_feature = generate_feature.repeat(seq_len, 1, 1, 1, 1)#seq_len * b * depth_size * h * w
+        feature_map = feature_map.repeat(seq_len, 1, 1, 1, 1)
+        # title_hidden_state = self.linear(hidden_state).unsqueeze(3).unsqueeze(3)# seq_len * b * d * 1 * 1
+        hidden_state = self.linear(hidden_state).unsqueeze(3).unsqueeze(3)
         #title_hidden_state.permute(1, 3, 0, 2)#b * 1 * 1 * d
-        title_hidden_state = title_hidden_state.repeat(1, 1, 1, featureH, featureW)
-        attention = F.tanh(generate_feature + title_hidden_state)#seq_len * b * depth_size * h * w
+        # title_hidden_state = title_hidden_state.repeat(1, 1, 1, featureH, featureW)
+        hidden_state = hidden_state.repeat(1,1,1, featureH, featureW)
+        attention = F.tanh(feature_map + hidden_state)#seq_len * b * depth_size * h * w
         attention = attention.view(seq_len * feature_size, self.depth_size, featureH, featureW)
-        attention_weights = self.conv2(attention)#seq_len * b,1,  h, w
-        attention_alpha = F.softmax(attention_weights.view(seq_len, feature_size, -1), dim=2)
-        attention_weights = attention_alpha.view(seq_len, feature_size, 1, featureH, featureW) #seq_len * b *1 * h * w
-        attention_weights = attention_weights.repeat(1, 1, self.feature_length, 1, 1)
-
-        attention_weights = attention_weights * (feature_map.unsqueeze(0).repeat(seq_len, 1, 1,1, 1))#seq_len * b * D * h * w
-        alpha = torch.sum(attention_weights, (3, 4)) #seq_len * b * D
-
+        # attention_weights = self.conv2(attention)#seq_len * b,1,  h, w
+        attention = self.conv2(attention)
+        # attention_alpha = F.softmax(attention_weights.view(seq_len, feature_size, -1), dim=2)
+        attention = F.softmax(attention.view(seq_len, feature_size, -1), dim=2)
+        # attention_weights = attention_alpha.view(seq_len, feature_size, 1, featureH, featureW) #seq_len * b *1 * h * w
+        attention = attention.view(seq_len, feature_size, 1, featureH, featureW)
+        # attention_weights = attention_weights.repeat(1, 1, self.feature_length, 1, 1)
+        attention = attention.repeat(1,1,self.feature_length,1, 1)
+        # attention_weights = attention_weights * (feature_map.unsqueeze(0).repeat(seq_len, 1, 1,1, 1))#seq_len * b * D * h * w
+        attention = attention * (feature_map_old.unsqueeze(0).repeat(seq_len, 1, 1,1,1))
+        # alpha = torch.sum(attention_weights, (3, 4)) #seq_len * b * D
+        alpha = torch.sum(attention, (3, 4))
         return alpha#seq_len * b * D
 
 # class Attn(nn.Module):
