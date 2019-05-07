@@ -144,7 +144,7 @@ class alignCollate(object):
     def __call__(self, batch):
         images, labels = zip(*batch)
         for img in images:
-            print(img.shape)
+            print(img.size)
         imgH = self.imgH
         maxW = self.maxW
         if self.keep_ratio:
