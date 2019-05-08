@@ -159,7 +159,7 @@ class alignCollate(object):
             max_ratio = ratios[-1]
             imgW = int(np.floor(max_ratio * imgH))
             imgW = max(imgW, imgH * self.min_ratio)
-            print('imgW is %d' % imgW)
+            # print('imgW is %d' % imgW)
             maxW = min(maxW, imgW)
             # print('maxW is %d' % maxW)
 
