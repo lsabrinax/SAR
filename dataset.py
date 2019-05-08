@@ -159,14 +159,15 @@ class alignCollate(object):
             max_ratio = ratios[-1]
             imgW = int(np.floor(max_ratio * imgH))
             imgW = max(imgW, imgH * self.min_ratio)
+            print('imgW is %d' % imgW)
             maxW = min(maxW, imgW)
-            print('maxW is %d' % maxW)
+            # print('maxW is %d' % maxW)
 
 
         transform = resizeNormalize((maxW, imgH))
         images = [transform(image) for image in images]
-        for img in images:
-            print(img.shape)
+        # for img in images:
+        #     print(img.shape)
         # images = torch.cat([t.unsqueeze(0) if t.shape[0] == 3 else print('img shape is', t.shape) for t in images], 0)
         images = torch.cat([t.unsqueeze(0) for t in images], 0)
         return images, labels
