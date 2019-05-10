@@ -161,7 +161,7 @@ def val(net, data_set, criterion, max_iter=100):
         hidden_state, feature_map = net.encoder(image)
         decoded_patch, scores = beam_decode(net.decoder, converter, hidden_state, opt, feature_map)
         predtext = converter.decode(decoded_patch)
-        if predtext[0] == label:
+        if predtext[0].lower() == label.lower():
             ncorrect += 1
         print('pred: %-20s, gt: %-20s' % (predtext[0],label))
     accu = ncorrect / float(nsample)
