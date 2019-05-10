@@ -141,12 +141,12 @@ def val(net, data_set, criterion, max_iter=100):
             decoded_patch1, scores1 = beam_decode(net.decoder, converter, hidden_state1, opt, feature_map1)
             decoded_patch2, scores2 = beam_decode(net.decoder, converter, hidden_state2, opt, feature_map2)
             decoded_patch3, scores3 = beam_decode(net.decoder, converter, hidden_state3, opt, feature_map3)
-            if scores1 < scores2:
-                if scores1 < scores3:
+            if scores1[0] < scores2[0]:
+                if scores1[0] < scores3[0]:
                     decoded_patch = decoded_patch1
                 else:
                     decoded_patch = decoded_patch3
-            elif scores2 < scores3:
+            elif scores2[0] < scores3[0]:
                 decoded_patch = decoded_patch2
             else:
                 decoded_patch = decoded_patch3
@@ -162,7 +162,7 @@ def val(net, data_set, criterion, max_iter=100):
             predtext = converter.decode(decoded_patch)
         if predtext[0] == label:
             ncorrect += 1
-        print('pred: %-20s, gt: %-20s' % (predtext,label))
+        print('pred: %-20s, gt: %-20s' % (predtext[0],label))
     accu = ncorrect / float(nsample)
     print('accuracy is %f' % accu)
 
