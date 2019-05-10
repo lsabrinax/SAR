@@ -153,6 +153,7 @@ def val(net, data_set, criterion, max_iter=100):
             predtext = converter.decode(decoded_patch)
         else:
             transform = dataset.resizeNormalize(img.size)
+            img = transform(img)
             img = V(img).unsqueeze(0)
             if opt.cuda:
                 image = img.cuda()
@@ -248,7 +249,7 @@ def train():
     loss_avg.reset()
     ij = 0
     mes = ''
-    for i in range(16, 21):
+    for i in range(1, 21):
         trainroot = os.path.join(opt.trainRoot, 'train_%d'%i)
         start = datetime.datetime.now()
         train_dataset = dataset.lmdbDataset(root=trainroot)
