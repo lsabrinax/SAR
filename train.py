@@ -120,47 +120,47 @@ def val(net, data_set, criterion, max_iter=100):
         nsample += 1
         w, h = img.size
         transform = dataset.resizeNormalize((160, 48))
-        if h > w:
-            imgclock = img.rotate(-90)
-            imganticlock = img.rotate(90)
+        # if h > w:
+        #     imgclock = img.rotate(-90)
+        #     imganticlock = img.rotate(90)
+        #     # transform = dataset.resizeNormalize(img.size)
+        #     img = transform(img)
+        #     img = V(img).unsqueeze(0)
+        #     # transform = dataset.resizeNormalize(imgclock.size)
+        #     imgclock = transform(imgclock)
+        #     imgclock = V(imgclock).unsqueeze(0)
+        #     # transform = dataset.resizeNormalize(imganticlock.size)
+        #     imganticlock = transform(imganticlock)
+        #     imganticlock = V(imganticlock).unsqueeze(0)
+        #     if opt.cuda:
+        #         image = img.cuda()
+        #         imageclock = imgclock.cuda()
+        #         imageanticlock = imganticlock.cuda()
+        #     hidden_state1, feature_map1 = net.encoder(image)
+        #     hidden_state2, feature_map2 = net.encoder(imageclock)
+        #     hidden_state3, feature_map3 = net.encoder(imageanticlock)
+        #     decoded_patch1, scores1 = beam_decode(net.decoder, converter, hidden_state1, opt, feature_map1)
+        #     decoded_patch2, scores2 = beam_decode(net.decoder, converter, hidden_state2, opt, feature_map2)
+        #     decoded_patch3, scores3 = beam_decode(net.decoder, converter, hidden_state3, opt, feature_map3)
+        #     if scores1[0] < scores2[0]:
+        #         if scores1[0] < scores3[0]:
+        #             decoded_patch = decoded_patch1
+        #         else:
+        #             decoded_patch = decoded_patch3
+        #     elif scores2[0] < scores3[0]:
+        #         decoded_patch = decoded_patch2
+        #     else:
+        #         decoded_patch = decoded_patch3
+        #     predtext = converter.decode(decoded_patch)
+        # else:
             # transform = dataset.resizeNormalize(img.size)
-            img = transform(img)
-            img = V(img).unsqueeze(0)
-            # transform = dataset.resizeNormalize(imgclock.size)
-            imgclock = transform(imgclock)
-            imgclock = V(imgclock).unsqueeze(0)
-            # transform = dataset.resizeNormalize(imganticlock.size)
-            imganticlock = transform(imganticlock)
-            imganticlock = V(imganticlock).unsqueeze(0)
-            if opt.cuda:
-                image = img.cuda()
-                imageclock = imgclock.cuda()
-                imageanticlock = imganticlock.cuda()
-            hidden_state1, feature_map1 = net.encoder(image)
-            hidden_state2, feature_map2 = net.encoder(imageclock)
-            hidden_state3, feature_map3 = net.encoder(imageanticlock)
-            decoded_patch1, scores1 = beam_decode(net.decoder, converter, hidden_state1, opt, feature_map1)
-            decoded_patch2, scores2 = beam_decode(net.decoder, converter, hidden_state2, opt, feature_map2)
-            decoded_patch3, scores3 = beam_decode(net.decoder, converter, hidden_state3, opt, feature_map3)
-            if scores1[0] < scores2[0]:
-                if scores1[0] < scores3[0]:
-                    decoded_patch = decoded_patch1
-                else:
-                    decoded_patch = decoded_patch3
-            elif scores2[0] < scores3[0]:
-                decoded_patch = decoded_patch2
-            else:
-                decoded_patch = decoded_patch3
-            predtext = converter.decode(decoded_patch)
-        else:
-            # transform = dataset.resizeNormalize(img.size)
-            img = transform(img)
-            img = V(img).unsqueeze(0)
-            if opt.cuda:
-                image = img.cuda()
-            hidden_state, feature_map = net.encoder(image)
-            decoded_patch, scores = beam_decode(net.decoder, converter, hidden_state, opt, feature_map)
-            predtext = converter.decode(decoded_patch)
+        img = transform(img)
+        img = V(img).unsqueeze(0)
+        if opt.cuda:
+            image = img.cuda()
+        hidden_state, feature_map = net.encoder(image)
+        decoded_patch, scores = beam_decode(net.decoder, converter, hidden_state, opt, feature_map)
+        predtext = converter.decode(decoded_patch)
         if predtext[0] == label:
             ncorrect += 1
         print('pred: %-20s, gt: %-20s' % (predtext[0],label))
