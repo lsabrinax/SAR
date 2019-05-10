@@ -119,16 +119,17 @@ def val(net, data_set, criterion, max_iter=100):
         # t, padded = converter.encode(label)
         nsample += 1
         w, h = img.size
+        transform = dataset.resizeNormalize((160, 48))
         if h > w:
             imgclock = img.rotate(-90)
             imganticlock = img.rotate(90)
-            transform = dataset.resizeNormalize(img.size)
+            # transform = dataset.resizeNormalize(img.size)
             img = transform(img)
             img = V(img).unsqueeze(0)
-            transform = dataset.resizeNormalize(imgclock.size)
+            # transform = dataset.resizeNormalize(imgclock.size)
             imgclock = transform(imgclock)
             imgclock = V(imgclock).unsqueeze(0)
-            transform = dataset.resizeNormalize(imganticlock.size)
+            # transform = dataset.resizeNormalize(imganticlock.size)
             imganticlock = transform(imganticlock)
             imganticlock = V(imganticlock).unsqueeze(0)
             if opt.cuda:
@@ -152,7 +153,7 @@ def val(net, data_set, criterion, max_iter=100):
                 decoded_patch = decoded_patch3
             predtext = converter.decode(decoded_patch)
         else:
-            transform = dataset.resizeNormalize(img.size)
+            # transform = dataset.resizeNormalize(img.size)
             img = transform(img)
             img = V(img).unsqueeze(0)
             if opt.cuda:
