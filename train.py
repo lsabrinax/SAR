@@ -14,6 +14,7 @@ import dataset
 import json
 from model.attnDecoder import SAR, beam_decode
 import datetime
+import ipdb
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--env', default='SAR', help='env to display message')
@@ -303,6 +304,8 @@ def train():
                         for param_group in optimizer.param_groups:
                             param_group['lr'] = opt.lr
                         print('lr is decay by a factor %f, now is %f' %(opt.lr_decay, opt.lr))
+                if os._exists('tmp/debug'):
+                    ipdb.set_trace()
         # train_dataset.close()
 
 def train_normal():
