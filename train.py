@@ -85,8 +85,9 @@ def weights_init(m):
         m.weight.data.normal_(1.0, 0.02)
 
 
-sar = SAR(nchannel=nchannel, nhidden=opt.nh, output_size=nclass, p=opt.dropout, batch_size=opt.batchSize)
-sar.apply(weights_init)
+sar_old = SAR(nchannel=nchannel, nhidden=opt.nh, output_size=nclass, p=opt.dropout, batch_size=opt.batchSize)
+sar_old.apply(weights_init)
+sar = nn.DataParallel(sar_old, device_ids=range(opt.ngpu))
 
 if opt.pretrained != '':
     print('loading pretrained model from %s' % opt.pretrained)
