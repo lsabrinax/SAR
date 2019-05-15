@@ -304,7 +304,7 @@ def train():
                         for param_group in optimizer.param_groups:
                             param_group['lr'] = opt.lr
                         print('lr is decay by a factor %f, now is %f' %(opt.lr_decay, opt.lr))
-                if os._exists('tmp/debug'):
+                if os.exists('tmp/debug'):
                     ipdb.set_trace()
         # train_dataset.close()
 
