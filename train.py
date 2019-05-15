@@ -86,9 +86,9 @@ def weights_init(m):
         m.weight.data.normal_(1.0, 0.02)
 
 
-sar_old = SAR(nchannel=nchannel, nhidden=opt.nh, output_size=nclass, p=opt.dropout, batch_size=opt.batchSize)
-sar_old.apply(weights_init)
-sar = nn.DataParallel(sar_old, device_ids=range(opt.ngpu))
+sar = SAR(nchannel=nchannel, nhidden=opt.nh, output_size=nclass, p=opt.dropout, batch_size=opt.batchSize)
+sar.apply(weights_init)
+# sar = nn.DataParallel(sar_old, device_ids=range(opt.ngpu))
 
 if opt.pretrained != '':
     print('loading pretrained model from %s' % opt.pretrained)
@@ -289,7 +289,7 @@ def train():
                 num = (i - 1) * 2 + y
                 if ij % opt.displayInterval == 0:
                     
-                    mes += "[{}/{}][{}/{}] loss: {}<br>".format(num, 40, iy, len(data_loader), loss_avg.val())
+                    mes += "[{}/{}][{}/{}] loss: {}<br>".format(num+30, 40, iy, len(data_loader), loss_avg.val())
                     loss_avg.reset()
                     vis.text(mes, win='text', opts={'title': 'display_message'})
 
@@ -306,7 +306,7 @@ def train():
                         print('lr is decay by a factor %f, now is %f' %(opt.lr_decay, opt.lr))
                 if os.path.exists('tmp/debug'):
                     ipdb.set_trace()
-        # train_dataset.close()
+        # train_dataset.close()ß
 
 def train_normal():
     vis = visdom.Visdom(env=opt.env, port=opt.port)
