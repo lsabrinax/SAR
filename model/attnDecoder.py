@@ -71,7 +71,7 @@ class attenDecoder(nn.Module):
         x = self.embedding(x).transpose(0, 1)#seq_len * b * emb_size
         # if encoder_input is not None:
         #     x = torch.cat((encoder_input, x), 0)
-        self.lstm.flatten_parameters()
+        # self.lstm.flatten_parameters()
         output, hidden = self.lstm(x, hidden_state) # seq_len * b * hidden_size,没有初始化hidden有没有影响
 
         ct = self.attn(feature_map, output)
