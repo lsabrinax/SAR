@@ -47,6 +47,7 @@ class Encoder(nn.Module):
         self.rnn = nn.LSTM(nIn, nHidden, num_layers=2)
 
     def forward(self, x):#x:w(t) * b * h(c)
+        self.rnn.flatten_parameters()
         _, (h_n, c_n) = self.rnn(x)
         out = h_n[-1]
 
@@ -124,6 +125,7 @@ class ResNet(nn.Module):
 
 
         out = self.rnn(feature).unsqueeze(0)
+        self.lstm.flatten_parameters()
         _, hidden_state = self.lstm(out)
 
         return hidden_state, feature_map
